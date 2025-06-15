@@ -1,0 +1,31 @@
+﻿name: order-service-ci.yml
+
+on:
+  push:
+    branches: [ 'main' ]
+    paths:
+      - 'OrderService/**'
+  pull_request:
+    paths:
+      - 'OrderService/**'
+    branches: [ 'main' ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore dependencies
+        run: dotnet restore OrderService.sln
+        working-directory: ./OrderService
+      - name: Build
+        run: dotnet build OrderService.sln --no-restore
+        working-directory: ./OrderService
+      - name: Test
+        run: dotnet test OrderService.sln --no-build --verbosity normal
+        working-directory: ./OrderService

@@ -1,5 +1,8 @@
-﻿namespace Application.Core.Decorators;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace Application.Core.Decorators;
+
+[ExcludeFromCodeCoverage]
 public sealed class ValidationDecorator<TRequest, TResponse>(
     IRequestHandler<TRequest, TResponse> decoratedHandler,
     IValidator<TRequest>? validator = null)

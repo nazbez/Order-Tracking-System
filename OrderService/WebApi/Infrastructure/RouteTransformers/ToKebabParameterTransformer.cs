@@ -1,7 +1,9 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace WebApi.Infrastructure.RouteTransformers;
 
+[ExcludeFromCodeCoverage]
 public sealed partial class ToKebabParameterTransformer : IOutboundParameterTransformer
 {
     public string TransformOutbound(object? value) => value is not null 

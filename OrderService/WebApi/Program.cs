@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using Serilog;
 using WebApi.Infrastructure.ExceptionHandlers;
@@ -26,7 +27,19 @@ builder.Configuration
     .AddJsonFile($"Configurations/appsettings.{environment.EnvironmentName}.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, _, _) =>
+    {  
+        document.Info = new OpenApiInfo
+        {
+            Title = "Order Service API",
+            Version = "v1",
+        };
+        
+        return Task.CompletedTask;
+    });
+});
 
 builder.Services.AddProblemDetails(options =>
 {

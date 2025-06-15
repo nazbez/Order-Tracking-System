@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Application.Orders.Commands.Models;
+namespace Application.Orders.Models;
 
 [ExcludeFromCodeCoverage]
-public sealed class OrderItemCreateDto
+public sealed class OrderItemDto
 {
     public string ProductName { get; set; }
     public decimal Price { get; set; }

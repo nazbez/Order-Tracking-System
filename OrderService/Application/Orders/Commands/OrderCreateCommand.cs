@@ -1,13 +1,13 @@
 ﻿using Application.Abstractions.Data;
 using Application.Core.Extensions;
-using Application.Orders.Commands.Models;
+using Application.Orders.Models;
 
 namespace Application.Orders.Commands;
 
 public sealed record OrderCreateCommand(
     Guid CustomerId,
     string DeliveryAddress,
-    ICollection<OrderItemCreateDto> OrderItems) : IRequest<ErrorOr<Guid>>;
+    ICollection<OrderItemDto> OrderItems) : IRequest<ErrorOr<Guid>>;
 
 [UsedImplicitly]
 public sealed class OrderCreateCommandHandler(IApplicationDbContext applicationDbContext)

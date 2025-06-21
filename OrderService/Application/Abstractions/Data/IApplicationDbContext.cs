@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.OrderItems;
+using Domain.Orders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -11,5 +12,6 @@ public interface IApplicationDbContext
     
     DatabaseFacade Database { get; }
     
+    DbSet<T> Set<T>() where T : class; 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

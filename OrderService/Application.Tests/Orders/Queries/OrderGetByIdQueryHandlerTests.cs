@@ -1,6 +1,6 @@
 ﻿using Application.Abstractions.Data;
 using Application.Orders.Queries;
-using Domain.Entities;
+using Domain.Orders;
 using ErrorOr;
 using Moq;
 using Moq.EntityFrameworkCore;

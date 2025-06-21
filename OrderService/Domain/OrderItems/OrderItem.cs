@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Domain.Entities.Base;
+using Domain.Abstractions;
+using Domain.Orders;
 
-namespace Domain.Entities;
+namespace Domain.OrderItems;
 
 [ExcludeFromCodeCoverage]
 public sealed class OrderItem : BaseEntity<Guid>

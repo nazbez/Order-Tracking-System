@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using Domain.Entities.Base;
-using Domain.Enums;
+using Domain.Abstractions;
+using Domain.OrderItems;
+using Domain.Orders.Enums;
 
-namespace Domain.Entities;
+namespace Domain.Orders;
 
 [ExcludeFromCodeCoverage]
 public sealed class Order : BaseEntity<Guid>
@@ -28,6 +29,8 @@ public sealed class Order : BaseEntity<Guid>
     
     public static Order Create(string deliveryAddress, Guid customerId)
     {
-        return new Order(deliveryAddress, customerId);
+        var order = new Order(deliveryAddress, customerId);
+        
+        return order;
     }
 }

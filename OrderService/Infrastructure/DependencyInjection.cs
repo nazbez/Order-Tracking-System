@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Application.Abstractions.Data;
+using Application.Core.IntegrationEvents;
 using Infrastructure.Persistence;
+using Infrastructure.Persistence.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,8 @@ public static class DependencyInjection
         });
 
         serviceCollection.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+        
+        serviceCollection.AddScoped<IIntegrationEventPublisher, OutboxIntegrationEventPublisher>();
 
         serviceCollection.AddHealthChecks().AddNpgSql(connectionString);
     }

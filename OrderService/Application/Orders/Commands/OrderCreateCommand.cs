@@ -1,6 +1,10 @@
 ﻿using Application.Abstractions.Data;
 using Application.Core.Extensions;
+using Application.Core.IntegrationEvents;
+using Application.Orders.IntegrationEvents;
 using Application.Orders.Models;
+using Domain.OrderItems;
+using Domain.Orders;
 
 namespace Application.Orders.Commands;
 
@@ -10,24 +14,31 @@ public sealed record OrderCreateCommand(
     ICollection<OrderItemDto> OrderItems) : IRequest<ErrorOr<Guid>>;
 
 [UsedImplicitly]
-public sealed class OrderCreateCommandHandler(IApplicationDbContext applicationDbContext)
+public sealed class OrderCreateCommandHandler(
+    IApplicationDbContext applicationDbContext,
+    IIntegrationEventPublisher integrationEventPublisher)
     : IRequestHandler<OrderCreateCommand, ErrorOr<Guid>>
 {
     public async Task<ErrorOr<Guid>> HandleAsync(
         OrderCreateCommand request,
         CancellationToken cancellationToken)
     {
-        var orderEntity = Order.Create(request.DeliveryAddress, request.CustomerId);
+        var order = Order.Create(request.DeliveryAddress, request.CustomerId);
+        
+        var orderItems = request.OrderItems
+            .Select(oi => OrderItem.Create(oi.ProductName, oi.Price, oi.Quantity))
+            .ToList();
 
-        var orderItemEntities = request.OrderItems
-            .Select(oi => OrderItem.Create(oi.ProductName, oi.Price, oi.Quantity));
+        order.OrderItems.AddRange(orderItems);
 
-        orderEntity.OrderItems.AddRange(orderItemEntities);
-
-        await applicationDbContext.Orders.AddAsync(orderEntity, cancellationToken);
-
+        await applicationDbContext.Orders.AddAsync(order, cancellationToken);
+        
+        await integrationEventPublisher.Publish(new OrderCreatedIntegrationEvent(
+                order.Id, order.CustomerId, order.CreatedAt, order.Status),
+            cancellationToken);
+        
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        return orderEntity.Id;
+        return order.Id;
     }
 }

@@ -16,6 +16,20 @@ services:
       - postgres
     networks:
       - backend
+  
+  order-service-outbox-worker:
+    build:
+      context: ./OrderService/.
+      dockerfile: OutboxWorker/Dockerfile
+    image: order-service-outbox-worker
+    container_name: order-service-outbox-worker
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ConnectionStrings__Sql=Host=postgres-db;Port=5432;Database=order_service_db;Username=postgres;Password=postgres
+    depends_on:
+      - postgres
+    networks:
+      - backend
     
   postgres:
     image: postgres:16

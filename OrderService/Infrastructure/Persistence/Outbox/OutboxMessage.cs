@@ -18,7 +18,7 @@ public sealed class OutboxMessage
         return new OutboxMessage
         {
             Id = Guid.NewGuid(),
-            Type = typeof(T).FullName ?? throw new InvalidOperationException("Integration event type name cannot be null."),
+            Type = typeof(T).Name ?? throw new InvalidOperationException("Integration event type name cannot be null."),
             Content = System.Text.Json.JsonSerializer.Serialize(integrationEvent),
             OccurredOnUtc = DateTimeOffset.UtcNow,
             ProcessedOnUtc = null,

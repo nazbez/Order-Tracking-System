@@ -49,7 +49,7 @@ public sealed class EventProcessor(
                 return new Message<Guid, OrderCreatedEvent>(@event, options.Topic);
             });
 
-            await eventProducer.BatchProduceAsync(messages, cancellationToken);
+            await eventProducer.BatchProduceAsync(messages);
 
             const string updateOutboxMessageQuery = """
                                                     UPDATE public."OutboxMessages" 

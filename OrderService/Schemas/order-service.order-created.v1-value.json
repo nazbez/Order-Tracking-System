@@ -1,0 +1,36 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OrderCreatedEvent",
+  "type": "object",
+  "properties": {
+    "Id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "CustomerId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "CreatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "Status": {
+      "type": "string",
+      "enum": [
+        "Placed",
+        "Assigned",
+        "Preparing",
+        "OutForDelivery",
+        "Delivered",
+        "Cancelled"
+      ]
+    }
+  },
+  "required": [
+    "Id",
+    "CustomerId",
+    "CreatedAt",
+    "Status"
+  ]
+}

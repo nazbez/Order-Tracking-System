@@ -407,3 +407,4 @@ FodyWeavers.xsd
 
 /.idea/
 /OrderService/.idea/
+/OrderService/secrets/

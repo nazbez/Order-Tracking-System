@@ -33,5 +33,8 @@
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="9.0.0" />
     <PackageVersion Include="Serilog.Settings.Configuration" Version="9.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageVersion Include="KafkaFlow.LogHandler.Microsoft" Version="4.0.0" />
+    <PackageVersion Include="KafkaFlow.Microsoft.DependencyInjection" Version="4.0.0" />
+    <PackageVersion Include="KafkaFlow.Serializer.SchemaRegistry.ConfluentJson" Version="4.0.0" />
   </ItemGroup>
 </Project>

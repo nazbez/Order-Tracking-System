@@ -1,6 +1,10 @@
-﻿using Dapper;
+﻿using System.Text.Json;
+using Dapper;
+using Microsoft.Extensions.Options;
 using OutboxWorker.Database;
+using OutboxWorker.Kafka;
 using OutboxWorker.Models;
+using OutboxWorker.Models.Events;
 
 namespace OutboxWorker.Services;
 
@@ -11,8 +15,12 @@ public interface IEventProcessor
 
 public sealed class EventProcessor(
     ILogger<EventProcessor> logger,
+    IEventProducer eventProducer,
+    IOptions<KafkaOptions> kafkaOptions,
     IDbConnectionFactory dbConnectionFactory) : IEventProcessor
 {
+    private readonly KafkaOptions options = kafkaOptions.Value; 
+    
     public async Task ProcessAsync(CancellationToken cancellationToken)
     {
         using var connection = await dbConnectionFactory.CreateConnectionAsync(cancellationToken);
@@ -31,7 +39,15 @@ public sealed class EventProcessor(
                     transaction))
                 .AsList();
 
-            // Implement send logic
+            var messages = outboxMessages.Select(x =>
+            {
+                var @event = JsonSerializer.Deserialize<OrderCreatedEvent>(x.Content)
+                             ?? throw new InvalidOperationException("Failed to deserialize event content.");
+            
+                return new Message<Guid, OrderCreatedEvent>(@event, options.Topic);
+            });
+
+            await eventProducer.BatchProduceAsync(messages, cancellationToken);
 
             const string updateOutboxMessageQuery = """
                                                     UPDATE public."OutboxMessages" 
@@ -47,7 +63,7 @@ public sealed class EventProcessor(
                     Ids = outboxMessages.Select(om => om.Id).AsList()
                 },
                 transaction);
-
+            
             transaction.Commit();
         }
         catch (Exception ex)

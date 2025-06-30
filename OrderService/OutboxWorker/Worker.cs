@@ -6,7 +6,7 @@ public class Worker(ILogger<Worker> logger, IServiceScopeFactory serviceScopeFac
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using PeriodicTimer timer = new(TimeSpan.FromMinutes(1));
+        using PeriodicTimer timer = new(TimeSpan.FromSeconds(10));
         
         while (await timer.WaitForNextTickAsync(stoppingToken))
         {

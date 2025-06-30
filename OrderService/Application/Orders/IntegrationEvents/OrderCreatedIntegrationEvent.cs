@@ -9,6 +9,6 @@ public sealed class OrderCreatedIntegrationEvent(Guid id, Guid customerId, DateT
 {
     public Guid Id { get; private set; } = id;
     public Guid CustomerId { get; private set; } = customerId;
-    public DateTimeOffset CreatedAt { get; set; } = createdAt;
+    public DateTimeOffset CreatedAt { get; private set; } = createdAt;
     public Status Status { get; private set; } = status;
 }

@@ -10,6 +10,9 @@
 
     <ItemGroup>
         <PackageReference Include="Dapper" />
+        <PackageReference Include="KafkaFlow.LogHandler.Microsoft" />
+        <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" />
+        <PackageReference Include="KafkaFlow.Serializer.SchemaRegistry.ConfluentJson" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
         <PackageReference Include="Npgsql" />
         <PackageReference Include="Serilog.Extensions.Hosting" />

@@ -1,5 +1,8 @@
-﻿namespace OutboxWorker.Kafka;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace OutboxWorker.Kafka;
+
+[ExcludeFromCodeCoverage]
 public sealed class KafkaOptions
 {
     public static string KafkaSectionName => "Kafka";

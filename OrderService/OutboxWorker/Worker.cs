@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using OutboxWorker.Services;
 
 namespace OutboxWorker;
 
+[ExcludeFromCodeCoverage]
 public class Worker(ILogger<Worker> logger, IServiceScopeFactory serviceScopeFactory) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

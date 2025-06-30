@@ -1,5 +1,8 @@
-﻿namespace OutboxWorker.Models.Events;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace OutboxWorker.Models.Events;
+
+[ExcludeFromCodeCoverage]
 public sealed class Message<TKey, TEvent>(TEvent @event, string topic)
     where TKey : struct
     where TEvent : IEvent<TKey>

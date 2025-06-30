@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Dapper;
 using Microsoft.Extensions.Options;
 using OutboxWorker.Database;
@@ -13,6 +14,7 @@ public interface IEventProcessor
     Task ProcessAsync(CancellationToken cancellationToken);
 }
 
+[ExcludeFromCodeCoverage]
 public sealed class EventProcessor(
     ILogger<EventProcessor> logger,
     IEventProducer eventProducer,

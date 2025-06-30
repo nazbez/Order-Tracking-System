@@ -1,5 +1,8 @@
-﻿namespace OutboxWorker.Models.Events;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace OutboxWorker.Models.Events;
+
+[ExcludeFromCodeCoverage]
 public class OrderCreatedEvent : IEvent<Guid>
 {
     public Guid Id { get; set; }

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Domain.Entities.Base;
+namespace Domain.Abstractions;
 
 [ExcludeFromCodeCoverage]
 public abstract class BaseEntity<TId> where TId : struct

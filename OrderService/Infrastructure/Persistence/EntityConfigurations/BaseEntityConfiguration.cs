@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,7 +7,7 @@ namespace Infrastructure.Persistence.EntityConfigurations;
 
 [ExcludeFromCodeCoverage]
 public abstract class BaseEntityConfiguration<TEntity, TId> : IEntityTypeConfiguration<TEntity>
-    where TEntity : Domain.Entities.Base.BaseEntity<TId>
+    where TEntity : BaseEntity<TId>
     where TId : struct
 {
     public void Configure(EntityTypeBuilder<TEntity> builder)

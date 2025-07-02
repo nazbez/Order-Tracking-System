@@ -21,7 +21,7 @@ builder.Configuration
     .AddJsonFile($"Configurations/appsettings.{environment.EnvironmentName}.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-if (environment.IsDevelopment())
+if (environment.IsDevelopment() && File.Exists("Configurations/appsettings.Secrets.json"))
 {
     builder.Configuration.AddJsonFile("Configurations/appsettings.Secrets.json", optional: false, reloadOnChange: true);
 }
@@ -69,7 +69,7 @@ builder.Services.AddKafka(kafka =>
                         })
                         .DefaultTopic(builder.Configuration["Kafka:Topic"])
                         .WithCompression(CompressionType.Gzip)
-                        .WithAcks(Acks.All))));
+                        .WithAcks(Acks.Leader))));
 
 builder.Services.AddSingleton<IDbConnectionFactory>(_ =>
 {

@@ -26,3 +26,6 @@ jobs:
       - name: Build
         run: dotnet build CourierService.sln --no-restore
         working-directory: ./CourierService
+      - name: Test
+        run: dotnet test CourierService.sln --no-build --verbosity normal
+        working-directory: ./CourierService

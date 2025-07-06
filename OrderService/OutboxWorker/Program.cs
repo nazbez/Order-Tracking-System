@@ -59,9 +59,10 @@ builder.Services.AddKafka(kafka =>
                         .AddMiddlewares(middlewares => 
                             middlewares.AddSchemaRegistryJsonSerializer<OrderCreatedEvent>(new JsonSerializerConfig
                             {
+                                Validate = true,
                                 SubjectNameStrategy = SubjectNameStrategy.Topic,
                                 UseLatestVersion = true,
-                                AutoRegisterSchemas = false,
+                                AutoRegisterSchemas = false
                             }))
                         .WithProducerConfig(new ProducerConfig
                         {

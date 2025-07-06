@@ -413,3 +413,4 @@ FodyWeavers.xsd
 
 # CourierSerivce specific ignores
 /CourierService/.idea/
+/CourierService/secrets/

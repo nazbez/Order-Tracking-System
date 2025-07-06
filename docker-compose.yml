@@ -49,6 +49,21 @@ services:
     networks:
       - backend
     
+  courier-service-kafka-consumer:
+    build:
+      context: ./CourierService/.
+      dockerfile: KafkaConsumer/Dockerfile
+    image: courier-service-kafka-consumer
+    container_name: courier-service-kafka-consumer
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+    volumes:
+      - ./CourierService/secrets/appsettings.Secrets.json:/app/Configurations/appsettings.Secrets.json:ro
+    depends_on:
+      - courier-service-api
+    networks:
+      - backend
+    
   postgres:
     image: postgres:16
     container_name: postgres-db

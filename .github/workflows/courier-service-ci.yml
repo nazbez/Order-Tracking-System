@@ -1,0 +1,31 @@
+﻿name: courier-service-ci.yml
+
+on:
+  push:
+    branches: [ 'main' ]
+    paths:
+      - 'CourierService/**'
+  pull_request:
+    paths:
+      - 'CourierService/**'
+    branches: [ 'main' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore dependencies
+        run: dotnet restore CourierService.sln
+        working-directory: ./CourierService
+      - name: Build
+        run: dotnet build CourierService.sln --no-restore
+        working-directory: ./CourierService
+      - name: Test
+        run: dotnet test CourierService.sln --no-build --verbosity normal
+        working-directory: ./CourierService

@@ -28,8 +28,6 @@ public sealed class OrderCreateCommandHandlerTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        var orderEntity = Order.Create(string.Empty, Guid.NewGuid());
-        orderEntity.Id = orderId;
         
         applicationDbContextMock.Setup(db => db.Orders.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
             .Callback<Order, CancellationToken>((order, _) => order.Id = orderId);

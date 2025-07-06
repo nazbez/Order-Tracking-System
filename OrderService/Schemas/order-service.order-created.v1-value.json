@@ -15,22 +15,15 @@
       "type": "string",
       "format": "date-time"
     },
-    "Status": {
+    "DeliveryAddress": {
       "type": "string",
-      "enum": [
-        "Placed",
-        "Assigned",
-        "Preparing",
-        "OutForDelivery",
-        "Delivered",
-        "Cancelled"
-      ]
+      "format": "string"
     }
   },
   "required": [
     "Id",
     "CustomerId",
     "CreatedAt",
-    "Status"
+    "DeliveryAddress"
   ]
 }

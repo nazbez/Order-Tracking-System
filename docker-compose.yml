@@ -33,6 +33,37 @@ services:
     networks:
       - backend
     
+  courier-service-api:
+    build:
+      context: ./CourierService/.
+      dockerfile: WebApi/Dockerfile
+    image: courier-service-api
+    container_name: courier-service-api
+    ports:
+      - "8081:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Sql=Host=postgres-db;Port=5432;Database=courier_service_db;Username=postgres;Password=postgres
+    depends_on:
+      - postgres
+    networks:
+      - backend
+    
+  courier-service-kafka-consumer:
+    build:
+      context: ./CourierService/.
+      dockerfile: KafkaConsumer/Dockerfile
+    image: courier-service-kafka-consumer
+    container_name: courier-service-kafka-consumer
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+    volumes:
+      - ./CourierService/secrets/appsettings.Secrets.json:/app/Configurations/appsettings.Secrets.json:ro
+    depends_on:
+      - courier-service-api
+    networks:
+      - backend
+    
   postgres:
     image: postgres:16
     container_name: postgres-db

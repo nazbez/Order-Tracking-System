@@ -34,7 +34,7 @@ public sealed class OrderCreateCommandHandler(
         await applicationDbContext.Orders.AddAsync(order, cancellationToken);
         
         await integrationEventPublisher.Publish(new OrderCreatedIntegrationEvent(
-                order.Id, order.CustomerId, order.CreatedAt, order.Status),
+                order.Id, order.CustomerId, order.CreatedAt, order.DeliveryAddress),
             cancellationToken);
         
         await applicationDbContext.SaveChangesAsync(cancellationToken);

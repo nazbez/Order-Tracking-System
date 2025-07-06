@@ -406,5 +406,11 @@ FodyWeavers.xsd
 *.sln.iml
 
 /.idea/
+
+# OrderService specific ignores
 /OrderService/.idea/
 /OrderService/secrets/
+
+# CourierSerivce specific ignores
+/CourierService/.idea/
+/CourierService/secrets/

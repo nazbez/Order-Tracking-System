@@ -47,7 +47,7 @@ public sealed class EventProcessor(
                              ?? throw new InvalidOperationException("Failed to deserialize event content.");
             
                 return new Message<Guid, OrderCreatedEvent>(@event, options.Topic);
-            });
+            }).ToList();
 
             await eventProducer.BatchProduceAsync(messages);
 
@@ -66,16 +66,17 @@ public sealed class EventProcessor(
                 },
                 transaction);
             
+            messages.ForEach(m => 
+                logger.LogInformation("Processed outbox message with Id: {Key}, Event: {Event}", 
+                    m.Key, 
+                    m.Event.GetType().Name));
+            
             transaction.Commit();
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "An error occurred while processing outbox messages.");
             transaction.Rollback();
-        }
-        finally
-        {
-            logger.LogInformation("Outbox messages are processed.");
         }
     }
 }

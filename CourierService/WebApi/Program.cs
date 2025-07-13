@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
 using Scalar.AspNetCore;
 using Serilog;
 using WebApi.Infrastructure.ExceptionHandlers;
@@ -26,6 +27,17 @@ builder.Configuration
     .AddJsonFile("Configurations/appsettings.json")
     .AddJsonFile($"Configurations/appsettings.{environment.EnvironmentName}.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
+
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddMeter("Microsoft.AspNetCore.Hosting")
+        .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+        .AddMeter("System.Net.Http")
+        .AddMeter("System.Net.NameResolution")
+        .AddRuntimeInstrumentation()
+        .AddProcessInstrumentation()
+        .AddPrometheusExporter());
 
 builder.Services.AddOpenApi(options =>
 {
@@ -90,6 +102,8 @@ if (app.Environment.IsDevelopment())
         options.Servers = Array.Empty<ScalarServer>();
     });
 }
+
+app.MapPrometheusScrapingEndpoint();
 
 app.UseSerilogRequestLogging(options =>
 {

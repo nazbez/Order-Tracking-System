@@ -1,9 +1,7 @@
-using System.Text;
 using Confluent.Kafka;
 using Confluent.SchemaRegistry;
 using KafkaConsumer.Clients;
 using KafkaConsumer.Handlers;
-using KafkaConsumer.Models;
 using KafkaConsumer.Models.Events;
 using KafkaFlow;
 using Refit;

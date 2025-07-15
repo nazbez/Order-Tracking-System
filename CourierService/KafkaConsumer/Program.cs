@@ -1,11 +1,13 @@
-using System.Text;
 using Confluent.Kafka;
 using Confluent.SchemaRegistry;
 using KafkaConsumer.Clients;
 using KafkaConsumer.Handlers;
-using KafkaConsumer.Models;
 using KafkaConsumer.Models.Events;
 using KafkaFlow;
+using KafkaFlow.Configuration;
+using KafkaFlow.OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Refit;
 using Serilog;
 using AutoOffsetReset = KafkaFlow.AutoOffsetReset;
@@ -30,6 +32,16 @@ builder.Services.AddSerilog((_, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext());
 
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("CourierService"))
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddSource(KafkaFlowInstrumentation.ActivitySourceName)
+            .AddHttpClientInstrumentation()
+            .AddOtlpExporter();
+    });
+
 builder.Services.AddRefitClient<ICourierOrderServiceClient>()
     .ConfigureHttpClient(client =>
     {
@@ -38,6 +50,7 @@ builder.Services.AddRefitClient<ICourierOrderServiceClient>()
 
 builder.Services.AddKafka(kafka =>
     kafka.UseMicrosoftLog()
+        .AddOpenTelemetryInstrumentation()
         .AddCluster(cluster =>
             cluster
                 .WithBrokers([builder.Configuration["Kafka:BootstrapServers"]])

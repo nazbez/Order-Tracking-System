@@ -2,6 +2,11 @@ using Confluent.Kafka;
 using Confluent.SchemaRegistry;
 using Confluent.SchemaRegistry.Serdes;
 using KafkaFlow;
+using KafkaFlow.Configuration;
+using KafkaFlow.OpenTelemetry;
+using Npgsql;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using OutboxWorker;
 using OutboxWorker.Database;
 using OutboxWorker.Kafka;
@@ -30,6 +35,16 @@ builder.Services.AddSerilog((_, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext());
 
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("OrderService"))
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddSource(KafkaFlowInstrumentation.ActivitySourceName)
+            .AddNpgsql()
+            .AddOtlpExporter();
+    });
+
 builder.Services.Configure<KafkaOptions>(
     builder.Configuration.GetSection(KafkaOptions.KafkaSectionName));
 
@@ -37,6 +52,7 @@ builder.Services.AddScoped<IEventProducer, EventProducer>();
 
 builder.Services.AddKafka(kafka => 
     kafka.UseMicrosoftLog()
+        .AddOpenTelemetryInstrumentation()
         .AddCluster(cluster => 
             cluster
                 .WithBrokers([builder.Configuration["Kafka:BootstrapServers"]])

@@ -10,12 +10,17 @@
     <ItemGroup>
         <PackageReference Include="KafkaFlow.LogHandler.Microsoft" />
         <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" />
+        <PackageReference Include="KafkaFlow.OpenTelemetry" />
         <PackageReference Include="KafkaFlow.Serializer.SchemaRegistry.ConfluentJson" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
         <PackageReference Include="Refit.HttpClientFactory" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
         <PackageReference Include="Serilog.Extensions.Hosting" />
         <PackageReference Include="Serilog.Settings.Configuration" />
         <PackageReference Include="Serilog.Sinks.Console" />
+        <PackageReference Include="Serilog.Sinks.Grafana.Loki" />
     </ItemGroup>
 
     <ItemGroup>

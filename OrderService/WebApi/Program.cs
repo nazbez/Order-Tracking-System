@@ -3,11 +3,16 @@ using Application.Abstractions.Data;
 using Asp.Versioning;
 using HealthChecks.UI.Client;
 using Infrastructure;
+using Infrastructure.Logging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Npgsql;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using Serilog;
 using WebApi.Infrastructure.ExceptionHandlers;
@@ -20,12 +25,33 @@ var environment = builder.Environment;
 builder.Host.UseSerilog((context, configuration) => 
     configuration
         .ReadFrom.Configuration(context.Configuration)
-        .Enrich.FromLogContext());
+        .Enrich.FromLogContext()
+        .Enrich.With<ActivityEnricher>());
 
 builder.Configuration
     .AddJsonFile("Configurations/appsettings.json")
     .AddJsonFile($"Configurations/appsettings.{environment.EnvironmentName}.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("OrderService"))
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddMeter("Microsoft.AspNetCore.Hosting")
+        .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+        .AddMeter("System.Net.Http")
+        .AddMeter("System.Net.NameResolution")
+        .AddRuntimeInstrumentation()
+        .AddProcessInstrumentation()
+        .AddPrometheusExporter())
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddAspNetCoreInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation()
+            .AddNpgsql()
+            .AddOtlpExporter();
+    });
 
 builder.Services.AddOpenApi(options =>
 {
@@ -91,7 +117,16 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseSerilogRequestLogging();
+app.MapPrometheusScrapingEndpoint();
+
+app.UseSerilogRequestLogging(options =>
+{
+    options.IncludeQueryInRequestPath = true;
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.ToString());
+    };
+});
 
 app.UseStatusCodePages();
 

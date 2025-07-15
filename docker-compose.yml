@@ -12,6 +12,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Sql=Host=postgres-db;Port=5432;Database=order_service_db;Username=postgres;Password=postgres
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
     depends_on:
       - postgres
     networks:
@@ -26,6 +27,7 @@ services:
     environment:
       - DOTNET_ENVIRONMENT=Development
       - ConnectionStrings__Sql=Host=postgres-db;Port=5432;Database=order_service_db;Username=postgres;Password=postgres
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
     volumes:
       - ./OrderService/secrets/appsettings.Secrets.json:/app/Configurations/appsettings.Secrets.json:ro
     depends_on:
@@ -44,6 +46,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Sql=Host=postgres-db;Port=5432;Database=courier_service_db;Username=postgres;Password=postgres
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
     depends_on:
       - postgres
     networks:
@@ -57,6 +60,7 @@ services:
     container_name: courier-service-kafka-consumer
     environment:
       - DOTNET_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
     volumes:
       - ./CourierService/secrets/appsettings.Secrets.json:/app/Configurations/appsettings.Secrets.json:ro
     depends_on:
@@ -114,6 +118,15 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - backend
+  
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "4317:4317"
+      - "16686:16686"
+    networks:
+      - backend
 
   grafana:
     container_name: grafana
@@ -126,6 +139,8 @@ services:
       loki:
         condition: service_started
       prometheus:
+        condition: service_started
+      jaeger:
         condition: service_started
     networks:
       - backend

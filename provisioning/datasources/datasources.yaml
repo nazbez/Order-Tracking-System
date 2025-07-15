@@ -13,3 +13,8 @@ datasources:
       maxLines: 1000
       minInterval: 1s
     isDefault: false
+  - name: Jaeger
+    type: jaeger
+    url: http://jaeger:16686
+    access: proxy
+    isDefault: false

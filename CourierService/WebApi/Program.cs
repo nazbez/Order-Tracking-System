@@ -3,12 +3,16 @@ using Application.Abstractions.Data;
 using Asp.Versioning;
 using HealthChecks.UI.Client;
 using Infrastructure;
+using Infrastructure.Logging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using Serilog;
 using WebApi.Infrastructure.ExceptionHandlers;
@@ -21,7 +25,8 @@ var environment = builder.Environment;
 builder.Host.UseSerilog((context, configuration) => 
     configuration
         .ReadFrom.Configuration(context.Configuration)
-        .Enrich.FromLogContext());
+        .Enrich.FromLogContext()
+        .Enrich.With<ActivityEnricher>());
 
 builder.Configuration
     .AddJsonFile("Configurations/appsettings.json")
@@ -29,6 +34,7 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("CourierService"))
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
         .AddMeter("Microsoft.AspNetCore.Hosting")
@@ -37,7 +43,15 @@ builder.Services.AddOpenTelemetry()
         .AddMeter("System.Net.NameResolution")
         .AddRuntimeInstrumentation()
         .AddProcessInstrumentation()
-        .AddPrometheusExporter());
+        .AddPrometheusExporter())
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddAspNetCoreInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation()
+            .AddNpgsql()
+            .AddOtlpExporter();
+    });;
 
 builder.Services.AddOpenApi(options =>
 {

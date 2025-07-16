@@ -1,4 +1,12 @@
+![Order Service CI](https://github.com/nazbez/Order-Tracking-System/actions/workflows/order-service-ci.yml/badge.svg)
+![Courier Service CI](https://github.com/nazbez/Order-Tracking-System/actions/workflows/courier-service-ci.yml/badge.svg)
+![Core Lib CI](https://github.com/nazbez/Order-Tracking-System/actions/workflows/core-lib-ci.yml/badge.svg)
+
 # Order-Tracking-System
+
+![.NET](https://img.shields.io/badge/.net-9.0-green)
+![Dockerized](https://img.shields.io/badge/docker-ready-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-yellow)
 
 ## Overview
 

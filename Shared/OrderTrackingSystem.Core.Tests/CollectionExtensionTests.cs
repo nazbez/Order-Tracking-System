@@ -1,6 +1,6 @@
-﻿using Application.Core.Extensions;
+﻿using OrderTrackingSystem.Core.Extensions;
 
-namespace Application.Tests.Core.Extensions;
+namespace OrderTrackingSystem.Core.Tests;
 
 public sealed class CollectionExtensionTests
 {
@@ -34,7 +34,7 @@ public sealed class CollectionExtensionTests
         Assert.Equal(3, collection.Count);
         Assert.DoesNotContain(0, collection);
     }
-
+    
     [Fact]
     public void AddRange_ThrowsArgumentNullExceptionWhenCollectionIsNull()
     {

@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Application.Abstractions.Request;
 using Application.Orders.Commands;
 using Application.Orders.Models;
 using Application.Orders.Queries;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using OrderTrackingSystem.Core.Mediator;
 using WebApi.Models.Orders;
 
 namespace WebApi.Controllers;

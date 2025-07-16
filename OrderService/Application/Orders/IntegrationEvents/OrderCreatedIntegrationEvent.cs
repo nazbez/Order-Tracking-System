@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Application.Core.IntegrationEvents;
 
 namespace Application.Orders.IntegrationEvents;
 

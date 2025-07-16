@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Application.Core.IntegrationEvents;
+using OrderTrackingSystem.Core.IntegrationEvents;
 
 namespace Infrastructure.Persistence.Outbox;
 

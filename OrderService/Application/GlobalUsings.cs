@@ -1,4 +1,5 @@
-global using Application.Abstractions.Request;
 global using ErrorOr;
-global using JetBrains.Annotations;
 global using FluentValidation;
+global using JetBrains.Annotations;
+global using OrderTrackingSystem.Core.Mediator;
+global using OrderTrackingSystem.Core.IntegrationEvents;

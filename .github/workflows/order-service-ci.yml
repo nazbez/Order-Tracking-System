@@ -1,4 +1,4 @@
-﻿name: order-service-ci.yml
+﻿name: Build and Test Order Service
 
 on:
   push:

@@ -1,4 +1,4 @@
-﻿name: courier-service-ci.yml
+﻿name: Build and Test Courier Service
 
 on:
   push:

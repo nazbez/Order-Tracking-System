@@ -5,6 +5,9 @@ services:
     build:
       context: ./OrderService/.
       dockerfile: WebApi/Dockerfile
+      args:
+        GITHUB_USERNAME: ${GITHUB_USERNAME}
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     image: order-service-api
     container_name: order-service-api
     ports:
@@ -39,6 +42,9 @@ services:
     build:
       context: ./CourierService/.
       dockerfile: WebApi/Dockerfile
+      args:
+        GITHUB_USERNAME: ${GITHUB_USERNAME}
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     image: courier-service-api
     container_name: courier-service-api
     ports:

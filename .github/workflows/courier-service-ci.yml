@@ -20,8 +20,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+      - name: Set up NuGet credentials
+        run: |
+          echo "GITHUB_TOKEN=${{ secrets.NUGET_PACKAGE_TOKEN }}" >> $GITHUB_ENV
+        working-directory: ./CourierService
       - name: Restore dependencies
-        run: dotnet restore CourierService.sln
+        run: dotnet restore CourierService.sln --configfile NuGet.config
         working-directory: ./CourierService
       - name: Build
         run: dotnet build CourierService.sln --no-restore

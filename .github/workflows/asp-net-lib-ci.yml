@@ -23,8 +23,12 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Set up NuGet credentials
+        run: |
+          echo "GITHUB_TOKEN=${{ secrets.NUGET_PACKAGE_TOKEN }}" >> $GITHUB_ENV
+
       - name: Restore dependencies
-        run: dotnet restore Shared/OrderTrackingSystem.AspNet/OrderTrackingSystem.AspNet.csproj
+        run: dotnet restore Shared/OrderTrackingSystem.AspNet/OrderTrackingSystem.AspNet.csproj --configfile Shared/NuGet.config
 
       - name: Build
         run: dotnet build Shared/OrderTrackingSystem.AspNet/OrderTrackingSystem.AspNet.csproj --configuration Release --no-restore
@@ -42,8 +46,12 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Set up NuGet credentials
+        run: |
+          echo "GITHUB_TOKEN=${{ secrets.NUGET_PACKAGE_TOKEN }}" >> $GITHUB_ENV
+
       - name: Restore dependencies
-        run: dotnet restore Shared/OrderTrackingSystem.AspNet/OrderTrackingSystem.AspNet.csproj
+        run: dotnet restore Shared/OrderTrackingSystem.AspNet/OrderTrackingSystem.AspNet.csproj --configfile Shared/NuGet.config
 
       - name: Build
         run: dotnet build Shared/OrderTrackingSystem.AspNet/OrderTrackingSystem.AspNet.csproj --configuration Release --no-restore

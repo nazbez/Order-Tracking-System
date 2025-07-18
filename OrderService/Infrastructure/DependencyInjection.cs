@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Application.Abstractions.Data;
-using Application.Core.IntegrationEvents;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OrderTrackingSystem.Core.IntegrationEvents;
 
 namespace Infrastructure;
 

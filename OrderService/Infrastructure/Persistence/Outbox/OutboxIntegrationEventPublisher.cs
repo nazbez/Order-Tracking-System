@@ -1,5 +1,5 @@
 ﻿using Application.Abstractions.Data;
-using Application.Core.IntegrationEvents;
+using OrderTrackingSystem.Core.IntegrationEvents;
 
 namespace Infrastructure.Persistence.Outbox;
 

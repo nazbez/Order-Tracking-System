@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Title>OrderTrackingSystem.Logging</Title>
+        <Authors>Nazar Bezuhlyi</Authors>
+        <Description>Library for configuring application logging</Description>
+        <PackageProjectUrl>https://github.com/nazbez/Order-Tracking-System</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/nazbez/Order-Tracking-System</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version />
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog" Version="4.3.0" />
+    </ItemGroup>
+
+</Project>

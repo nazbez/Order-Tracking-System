@@ -6,6 +6,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{58FEFFCB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderTrackingSystem.Core.Tests", "OrderTrackingSystem.Core.Tests\OrderTrackingSystem.Core.Tests.csproj", "{F21E8E2F-2C05-48B5-8012-47E6C9466905}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8184C12E-8CB0-4466-99F4-A80F33CF039D}"
+	ProjectSection(SolutionItems) = preProject
+		..\.editorconfig = ..\.editorconfig
+		..\.gitignore = ..\.gitignore
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderTrackingSystem.Logging", "OrderTrackingSystem.Logging\OrderTrackingSystem.Logging.csproj", "{E3791EFD-E9FD-4ABA-8561-9B7525469881}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderTrackingSystem.AspNet", "OrderTrackingSystem.AspNet\OrderTrackingSystem.AspNet.csproj", "{9FEBAB2E-2C74-405D-85FC-746F0314FDF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +32,14 @@ Global
 		{F21E8E2F-2C05-48B5-8012-47E6C9466905}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F21E8E2F-2C05-48B5-8012-47E6C9466905}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F21E8E2F-2C05-48B5-8012-47E6C9466905}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3791EFD-E9FD-4ABA-8561-9B7525469881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3791EFD-E9FD-4ABA-8561-9B7525469881}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3791EFD-E9FD-4ABA-8561-9B7525469881}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3791EFD-E9FD-4ABA-8561-9B7525469881}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FEBAB2E-2C74-405D-85FC-746F0314FDF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FEBAB2E-2C74-405D-85FC-746F0314FDF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FEBAB2E-2C74-405D-85FC-746F0314FDF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FEBAB2E-2C74-405D-85FC-746F0314FDF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F21E8E2F-2C05-48B5-8012-47E6C9466905} = {58FEFFCB-CD8F-401C-AFE4-551DC77AA7AA}

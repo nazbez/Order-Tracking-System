@@ -1,10 +1,10 @@
 ﻿using Application.Abstractions.Data;
-using Application.Core.IntegrationEvents;
 using Application.Orders.Commands;
 using Application.Orders.IntegrationEvents;
 using Application.Orders.Models;
 using Domain.Orders;
 using Moq;
+using OrderTrackingSystem.Core.IntegrationEvents;
 
 namespace Application.Tests.Orders.Commands;
 

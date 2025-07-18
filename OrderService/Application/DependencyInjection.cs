@@ -12,10 +12,7 @@ public static class DependencyInjection
     {
         var assembly = Assembly.GetExecutingAssembly();
         
-        services.Scan(t => t.FromAssembliesOf(typeof(DependencyInjection))
-            .AddClasses(i => i.AssignableTo(typeof(IRequestHandler<,>)), true)
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
+        services.AddMediator(assembly);
 
         services.Decorate(typeof(IRequestHandler<,>), typeof(ValidationDecorator<,>));
         

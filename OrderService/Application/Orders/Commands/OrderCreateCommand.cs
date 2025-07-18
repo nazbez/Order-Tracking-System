@@ -1,10 +1,9 @@
 ﻿using Application.Abstractions.Data;
-using Application.Core.Extensions;
-using Application.Core.IntegrationEvents;
 using Application.Orders.IntegrationEvents;
 using Application.Orders.Models;
 using Domain.OrderItems;
 using Domain.Orders;
+using OrderTrackingSystem.Core.Extensions;
 
 namespace Application.Orders.Commands;
 

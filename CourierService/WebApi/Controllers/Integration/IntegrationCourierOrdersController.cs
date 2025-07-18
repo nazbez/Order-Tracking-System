@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Application.Abstractions.Request;
 using Application.CourierOrders.Commands;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
+using OrderTrackingSystem.Core.Mediator;
 using WebApi.Controllers.Base;
 using WebApi.Models.CourierOrders;
 

@@ -5,7 +5,16 @@ EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
+ARG GITHUB_USERNAME
+ARG GITHUB_TOKEN
+
 WORKDIR /src
+
+COPY NuGet.config /root/.nuget/NuGet/NuGet.config.template
+RUN apt-get update && apt-get install -y gettext-base && \
+    envsubst < /root/.nuget/NuGet/NuGet.config.template > /root/.nuget/NuGet/NuGet.Config && \
+    rm /root/.nuget/NuGet/NuGet.config.template
+
 COPY ["/Directory.Packages.props", "/"]
 COPY ["WebApi/WebApi.csproj", "WebApi/"]
 COPY ["Domain/Domain.csproj", "Domain/"]

@@ -30,7 +30,7 @@ jobs:
         run: dotnet build Shared/OrderTrackingSystem.AspNet/OrderTrackingSystem.AspNet.csproj --configuration Release --no-restore
 
   publish:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: build-test
     runs-on: ubuntu-latest
     steps:

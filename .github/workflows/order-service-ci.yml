@@ -25,7 +25,7 @@ jobs:
           echo "GITHUB_TOKEN=${{ secrets.NUGET_PACKAGE_TOKEN }}" >> $GITHUB_ENV
         working-directory: ./OrderService
       - name: Restore dependencies
-        run: dotnet restore CourierService.sln --configfile NuGet.config
+        run: dotnet restore OrderService.sln --configfile NuGet.config
         working-directory: ./OrderService
       - name: Build
         run: dotnet build OrderService.sln --no-restore

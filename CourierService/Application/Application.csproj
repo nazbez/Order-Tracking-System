@@ -13,8 +13,6 @@
         <PackageReference Include="Mapster" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="OrderTrackingSystem.Core" />
-        <PackageReference Include="Serilog.AspNetCore" />
-        <PackageReference Include="Serilog.Sinks.Grafana.Loki" />
     </ItemGroup>
 
     <ItemGroup>

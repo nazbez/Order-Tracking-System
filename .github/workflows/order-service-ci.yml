@@ -1,6 +1,7 @@
-﻿name: Build and Test Order Service
+﻿name: Build, Test, and Publish Order Service
 
 on:
+  workflow_dispatch:
   push:
     branches: [ 'main' ]
     paths:
@@ -11,7 +12,7 @@ on:
     branches: [ 'main' ]
     
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,3 +34,35 @@ jobs:
       - name: Test
         run: dotnet test OrderService.sln --no-build --verbosity normal
         working-directory: ./OrderService
+
+  publish-docker-image:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/nazbez/courier-service
+          tags: type=sha
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Build container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./OrderService
+          file: ./OrderService/WebApi/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            GITHUB_USERNAME=nazbez
+            GITHUB_TOKEN=${{ secrets.NUGET_PACKAGE_TOKEN }}

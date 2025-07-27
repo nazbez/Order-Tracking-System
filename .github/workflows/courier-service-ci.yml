@@ -1,4 +1,4 @@
-﻿name: Build and Test Courier Service
+﻿name: Build, Test, and Publish Courier Service
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ on:
     branches: [ 'main' ]
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -35,9 +35,9 @@ jobs:
         run: dotnet test CourierService.sln --no-build --verbosity normal
         working-directory: ./CourierService
   
-  publish:
+  publish-docker-image:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    needs: build
+    needs: build-test
     runs-on: ubuntu-latest
 
     steps:

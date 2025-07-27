@@ -1,6 +1,7 @@
 ﻿name: Build and Test Courier Service
 
 on:
+  workflow_dispatch:
   push:
     branches: [ 'main' ]
     paths:
@@ -33,3 +34,35 @@ jobs:
       - name: Test
         run: dotnet test CourierService.sln --no-build --verbosity normal
         working-directory: ./CourierService
+  
+  publish:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/nazbez/courier-service
+          tags: type=sha
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Build container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./CourierService
+          file: ./CourierService/WebApi/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            GITHUB_USERNAME=nazbez
+            GITHUB_TOKEN=${{ secrets.NUGET_PACKAGE_TOKEN }}

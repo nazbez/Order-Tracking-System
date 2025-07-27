@@ -48,7 +48,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/nazbez/courier-service
+          images: ghcr.io/nazbez/order-tracking-system/courier-service-api
           tags: type=sha
       - name: Login to GHCR
         uses: docker/login-action@v3

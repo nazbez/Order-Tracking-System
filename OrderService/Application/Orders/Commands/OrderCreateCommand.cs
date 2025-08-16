@@ -1,9 +1,7 @@
 ﻿using Application.Abstractions.Data;
 using Application.Orders.IntegrationEvents;
 using Application.Orders.Models;
-using Domain.OrderItems;
 using Domain.Orders;
-using OrderTrackingSystem.Core.Extensions;
 
 namespace Application.Orders.Commands;
 
@@ -24,11 +22,10 @@ public sealed class OrderCreateCommandHandler(
     {
         var order = Order.Create(request.DeliveryAddress, request.CustomerId);
         
-        var orderItems = request.OrderItems
-            .Select(oi => OrderItem.Create(oi.ProductName, oi.Price, oi.Quantity))
-            .ToList();
-
-        order.OrderItems.AddRange(orderItems);
+        foreach (var orderItem in request.OrderItems)
+        {
+            order.AddOrderItem(orderItem.ProductName, orderItem.Price, orderItem.Quantity);
+        }
 
         await applicationDbContext.Orders.AddAsync(order, cancellationToken);
         

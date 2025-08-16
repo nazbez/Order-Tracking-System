@@ -15,8 +15,9 @@ public sealed class Order : BaseEntity<Guid>
     [Description("Customer identifier. Will be replaced with a reference to the Customer entity in the future.")]
     public Guid CustomerId { get; private set; }
 
-    public ICollection<OrderItem> OrderItems { get; private set; } = new HashSet<OrderItem>();
-    
+    private readonly List<OrderItem> orderItems = [];
+    public IReadOnlyCollection<OrderItem> OrderItems => orderItems;
+
     private Order(string deliveryAddress, Guid customerId)
     {
         Id = Guid.NewGuid();
@@ -24,6 +25,13 @@ public sealed class Order : BaseEntity<Guid>
         Status = Status.Placed;
         CustomerId = customerId;
         CreatedAt = DateTimeOffset.Now;
+        UpdatedAt = DateTimeOffset.Now;
+    }
+    
+    public void AddOrderItem(string productName, decimal price, int quantity)
+    {
+        var orderItem = OrderItem.Create(productName, price, quantity);
+        orderItems.Add(orderItem);
         UpdatedAt = DateTimeOffset.Now;
     }
     

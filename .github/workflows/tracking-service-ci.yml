@@ -1,4 +1,4 @@
-﻿name: Build, Test, and Publish Order Service
+﻿name: Build, Test, and Publish Tracking Service
 
 on:
   workflow_dispatch:

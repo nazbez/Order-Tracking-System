@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "OrderTrackingSystem.Grpc";
+
+service OrderService {
+  rpc GetOrderStatus (OrderStatusRequest) returns (OrderStatusResponse);
+}
+
+message OrderStatusRequest {
+  string orderId = 1;
+}
+
+message OrderStatusResponse {
+  string orderId = 1;
+  string status = 2;
+  google.protobuf.Timestamp createdAt = 3;
+  google.protobuf.Timestamp updatedAt = 4;
+}

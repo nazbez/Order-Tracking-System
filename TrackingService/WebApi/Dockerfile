@@ -15,13 +15,8 @@ RUN apt-get update && apt-get install -y gettext-base && \
     envsubst < /root/.nuget/NuGet/NuGet.config.template > /root/.nuget/NuGet/NuGet.Config && \
     rm /root/.nuget/NuGet/NuGet.config.template
 
-COPY ["/Directory.Packages.props", "/"]
 COPY ["WebApi/WebApi.csproj", "WebApi/"]
-COPY ["Domain/Domain.csproj", "Domain/"]
-COPY ["Application/Application.csproj", "Application/"]
-COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 COPY ["../../protos/order.proto", "protos/"]
-
 RUN dotnet restore "WebApi/WebApi.csproj"
 COPY . .
 WORKDIR "/src/WebApi"

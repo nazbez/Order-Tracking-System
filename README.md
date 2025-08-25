@@ -1,7 +1,7 @@
 ![Order Service CI](https://github.com/nazbez/Order-Tracking-System/actions/workflows/order-service-ci.yml/badge.svg)
 ![Courier Service CI](https://github.com/nazbez/Order-Tracking-System/actions/workflows/courier-service-ci.yml/badge.svg)
 ![Core Lib CI](https://github.com/nazbez/Order-Tracking-System/actions/workflows/core-lib-ci.yml/badge.svg)
-![Tracking System CI](https://github.com/nazbez/Order-Tracking-System/actions/workflows/tracking-system-ci.yml/badge.svg)
+![Tracking Service CI](https://github.com/nazbez/Order-Tracking-System/actions/workflows/tracking-service-ci.yml/badge.svg)
 
 # Order-Tracking-System
 
@@ -78,7 +78,7 @@ Order-Tracking-System is a study project designed to explore and demonstrate mod
 
 - `OrderService/` - Order management microservice
 - `CourierService/` - Courier delivery microservice
-- `TrackingSystem/` - Service responsible for tracking order statuses and handling real-time updates
+- `TrackingService/` - Tracking microservice
 - `Shared/` - Shared libraries and code
 - `protos/` - Protocol Buffers definitions for gRPC communication between services
 - `prometheus/`, `provisioning/` - Observability and monitoring configuration

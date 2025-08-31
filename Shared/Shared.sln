@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderTrackingSystem.Logging
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderTrackingSystem.AspNet", "OrderTrackingSystem.AspNet\OrderTrackingSystem.AspNet.csproj", "{9FEBAB2E-2C74-405D-85FC-746F0314FDF4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderTrackingSystem.Grpc", "OrderTrackingSystem.Grpc\OrderTrackingSystem.Grpc.csproj", "{CFBFE229-37B8-4928-B9B5-F86206C0C94A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{9FEBAB2E-2C74-405D-85FC-746F0314FDF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FEBAB2E-2C74-405D-85FC-746F0314FDF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FEBAB2E-2C74-405D-85FC-746F0314FDF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFBFE229-37B8-4928-B9B5-F86206C0C94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFBFE229-37B8-4928-B9B5-F86206C0C94A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFBFE229-37B8-4928-B9B5-F86206C0C94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFBFE229-37B8-4928-B9B5-F86206C0C94A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F21E8E2F-2C05-48B5-8012-47E6C9466905} = {58FEFFCB-CD8F-401C-AFE4-551DC77AA7AA}

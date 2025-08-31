@@ -20,7 +20,6 @@ COPY ["WebApi/WebApi.csproj", "WebApi/"]
 COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
-COPY ["../../protos/order.proto", "protos/"]
 
 RUN dotnet restore "WebApi/WebApi.csproj"
 COPY . .

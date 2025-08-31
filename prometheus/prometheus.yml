@@ -11,3 +11,6 @@ scrape_configs:
   - job_name: 'courier-service-api'
     static_configs:
       - targets: ['courier-service-api:8080']
+  - job_name: 'tracking-service-api'
+    static_configs:
+      - targets: ['tracking-service-api:8080']

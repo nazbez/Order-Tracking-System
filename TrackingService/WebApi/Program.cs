@@ -2,7 +2,6 @@
 using Grpc.Net.Client.Configuration;
 using OrderTrackingSystem.AspNet.Extensions;
 using OrderTrackingSystem.Grpc;
-using WebApi.Grpc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +10,9 @@ var environment = builder.Environment;
 builder.Host.AddSerilog();
 
 builder.Configuration.AddConfiguration(environment);
+
 builder.Services.AddWeb(builder.Configuration);
+builder.Services.AddHealthChecks();
 
 var defaultMethodConfig = new MethodConfig
 {
@@ -27,15 +28,14 @@ var defaultMethodConfig = new MethodConfig
 };
 
 builder.Services.AddGrpcClient<OrderService.OrderServiceClient>(
-        o => 
-        { 
-            o.Address = new Uri(builder.Configuration.GetValue<string>("Services:OrderService")!);
-            o.ChannelOptionsActions.Add(channelOptions =>
-            {
-                channelOptions.ServiceConfig = new ServiceConfig { MethodConfigs = { defaultMethodConfig } };
-            });
-        })
-    .AddInterceptor<LoggingInterceptor>();
+    o =>
+    {
+        o.Address = new Uri(builder.Configuration.GetValue<string>("Services:OrderService")!);
+        o.ChannelOptionsActions.Add(channelOptions =>
+        {
+            channelOptions.ServiceConfig = new ServiceConfig { MethodConfigs = { defaultMethodConfig } };
+        });
+    });
 
 var app = builder.Build();
 

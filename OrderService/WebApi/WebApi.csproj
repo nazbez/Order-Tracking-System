@@ -8,11 +8,18 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Google.Protobuf" />
+        <PackageReference Include="Grpc.AspNetCore" />
+        <PackageReference Include="Grpc.Tools">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="OrderTrackingSystem.AspNet" />
+        <PackageReference Include="OrderTrackingSystem.Grpc" GeneratePathProperty="true" />
         <PackageReference Include="Serilog.Sinks.Grafana.Loki" />
     </ItemGroup>
 
@@ -24,6 +31,10 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="$(PkgOrderTrackingSystem_Grpc)\content\protos\order.proto" GrpcServices="Server" />
     </ItemGroup>
 
 </Project>

@@ -1,0 +1,65 @@
+﻿name: Build, Test, and Publish Tracking Service
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ 'main' ]
+    paths:
+      - 'TrackingService/**'
+  pull_request:
+    paths:
+      - 'TrackingService/**'
+    branches: [ 'main' ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Set up NuGet credentials
+        run: |
+          echo "GITHUB_TOKEN=${{ secrets.NUGET_PACKAGE_TOKEN }}" >> $GITHUB_ENV
+        working-directory: ./TrackingService
+      - name: Restore dependencies
+        run: dotnet restore TrackingService.sln --configfile NuGet.config
+        working-directory: ./TrackingService
+      - name: Build
+        run: dotnet build TrackingService.sln --no-restore
+        working-directory: ./TrackingService
+
+  publish-docker-image:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/nazbez/order-tracking-system/order-service-api
+          tags: type=sha
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Build container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./TrackingService
+          file: ./TrackingService/WebApi/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            GITHUB_USERNAME=nazbez
+            GITHUB_TOKEN=${{ secrets.NUGET_PACKAGE_TOKEN }}

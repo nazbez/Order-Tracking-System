@@ -7,8 +7,12 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- WebAPI -->
+    <PackageVersion Include="Google.Protobuf" Version="3.32.0" />
+    <PackageVersion Include="Grpc.AspNetCore" Version="2.71.0" />
+    <PackageVersion Include="Grpc.Tools" Version="2.72.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5" />
     <PackageVersion Include="OrderTrackingSystem.AspNet" Version="2025.7.18.181930" />
+    <PackageVersion Include="OrderTrackingSystem.Grpc" Version="2025.8.31.131954" />
     <PackageVersion Include="Serilog.Sinks.Grafana.Loki" Version="8.3.1" />
     <!-- Application -->
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />

@@ -12,6 +12,7 @@ services:
     container_name: order-service-api
     ports:
       - "8080:8080"
+      - "8083:8083"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Sql=Host=postgres-db;Port=5432;Database=order_service_db;Username=postgres;Password=postgres
@@ -71,6 +72,23 @@ services:
       - ./CourierService/secrets/appsettings.Secrets.json:/app/Configurations/appsettings.Secrets.json:ro
     depends_on:
       - courier-service-api
+    networks:
+      - backend
+  
+  tracking-service-api:
+    build:
+      context: ./TrackingService/.
+      dockerfile: WebApi/Dockerfile
+      args:
+        GITHUB_USERNAME: ${GITHUB_USERNAME}
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    image: tracking-service-api
+    container_name: tracking-service-api
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
     networks:
       - backend
     

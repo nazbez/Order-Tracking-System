@@ -415,6 +415,9 @@ FodyWeavers.xsd
 /CourierService/.idea/
 /CourierService/secrets/
 
+# TrackingService specific ignores
+/TrackingService/.idea/
+
 # Shared specific ignores
 /Shared/.idea/
 

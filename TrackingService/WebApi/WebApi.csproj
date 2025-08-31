@@ -16,6 +16,7 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="OrderTrackingSystem.AspNet" Version="2025.7.18.181930" />
+      <PackageReference Include="OrderTrackingSystem.Grpc" Version="1.0.0" GeneratePathProperty="true" />
       <PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="8.3.1" />
     </ItemGroup>
 
@@ -29,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="..\..\protos\order.proto" GrpcServices="Client" />
+        <Protobuf Include="$(PkgOrderTrackingSystem_Grpc)\content\protos\order.proto" GrpcServices="Client" />
     </ItemGroup>
 
 </Project>

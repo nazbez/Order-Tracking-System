@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Title>OrderTrackingSystem.Grpc</Title>
+        <Authors>Nazar Bezuhlyi</Authors>
+        <Description>gRPC library which contains all application contracts</Description>
+        <PackageProjectUrl>https://github.com/nazbez/Order-Tracking-System</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/nazbez/Order-Tracking-System</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version />
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="protos\*.proto" Pack="true" Visible="true" />
+    </ItemGroup>
+
+</Project>

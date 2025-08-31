@@ -1,0 +1,59 @@
+﻿name: Build, Test, and Publish OrderTrackingSystem.Grpc
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ 'main' ]
+    paths:
+      - 'Shared/OrderTrackingSystem.Grpc/**'
+  push:
+    branches: [ 'main' ]
+    paths:
+      - 'Shared/OrderTrackingSystem.Grpc/**'
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Shared/OrderTrackingSystem.Grpc/OrderTrackingSystem.Grpc.csproj
+
+      - name: Build
+        run: dotnet build Shared/OrderTrackingSystem.Grpc/OrderTrackingSystem.Grpc.csproj --configuration Release --no-restore
+
+  publish:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Shared/OrderTrackingSystem.Grpc/OrderTrackingSystem.Grpc.csproj
+
+      - name: Build
+        run: dotnet build Shared/OrderTrackingSystem.Grpc/OrderTrackingSystem.Grpc.csproj --configuration Release --no-restore
+
+      - name: Set version from run date
+        id: set_version
+        run: |
+          echo "version=$(date +'%Y.%m.%d.%H%M%S')" >> $GITHUB_ENV
+      - name: Pack NuGet package
+        run: dotnet pack Shared/OrderTrackingSystem.Grpc/OrderTrackingSystem.Grpc.csproj --configuration Release --no-build --output ./nupkg /p:PackageVersion=${{ env.version }}
+
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push ./nupkg/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.NUGET_PACKAGE_TOKEN }}

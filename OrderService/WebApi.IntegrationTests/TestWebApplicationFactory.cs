@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using Respawn;
 using Testcontainers.PostgreSql;
 
 namespace WebApi.IntegrationTests;
@@ -14,7 +13,6 @@ namespace WebApi.IntegrationTests;
 public class TestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private DbConnection dbConnection;
-    private Respawner respawner;
     
     private readonly PostgreSqlContainer dbContainer = new PostgreSqlBuilder()
         .WithImage("postgres:16")
@@ -25,11 +23,6 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncL
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         Environment.SetEnvironmentVariable("ConnectionStrings:Sql", dbContainer.GetConnectionString());
-    }
-    
-    public async Task ResetDatabaseAsync()
-    {
-        await respawner.ResetAsync(dbConnection);
     }
     
     public async Task InitializeAsync()
@@ -44,12 +37,6 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncL
         
         dbConnection = new NpgsqlConnection(dbContainer.GetConnectionString());
         await dbConnection.OpenAsync();
-        
-        respawner = await Respawner.CreateAsync(dbConnection, new RespawnerOptions
-        {
-            SchemasToInclude = [ "public" ],
-            DbAdapter = DbAdapter.Postgres
-        });
     }
     
     public new async Task DisposeAsync()

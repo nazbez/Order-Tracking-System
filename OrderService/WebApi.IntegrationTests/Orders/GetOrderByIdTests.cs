@@ -6,7 +6,7 @@ using WebApi.Models.Orders;
 namespace WebApi.IntegrationTests.Orders;
 
 [Collection("OrderTests")]
-public class GetOrderByIdTests(TestWebApplicationFactory factory) : BaseTests(factory)
+public class GetOrderByIdTests(TestWebApplicationFactory factory)
 {
     private const string BaseUrl = "/api/v1/orders";
 
@@ -14,7 +14,7 @@ public class GetOrderByIdTests(TestWebApplicationFactory factory) : BaseTests(fa
     public async Task GetOrderById_ShouldReturnOk_WhenOrderExists()
     {
         // Arrange
-        var client = Factory.CreateClient();
+        var client = factory.CreateClient();
         var order = TestDataSeeder.Orders.First();
 
         // Act
@@ -37,7 +37,7 @@ public class GetOrderByIdTests(TestWebApplicationFactory factory) : BaseTests(fa
     public async Task GetOrderById_ShouldReturnBadRequest_WhenOrderDoesNotExist()
     {
         // Arrange
-        var client = Factory.CreateClient();
+        var client = factory.CreateClient();
         var orderId = Guid.NewGuid();
 
         // Act

@@ -10,10 +10,11 @@ using WebApi.Models.Orders;
 namespace WebApi.Controllers;
 
 [ExcludeFromCodeCoverage]
-public sealed class OrderController : BaseController
+public sealed class OrdersController : BaseController
 {
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(OrderResponseModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(
         Guid id,
         [FromServices] IRequestHandler<OrderGetByIdQuery, ErrorOr<OrderDto>> requestHandler,

@@ -2,7 +2,7 @@
 using Application.Orders.Commands.Validators;
 using Application.Orders.Models;
 
-namespace Application.Tests.Orders.Commands.Validators;
+namespace Application.UnitTests.Orders.Commands.Validators;
 
 public sealed class OrderCreateCommandValidatorTests
 {

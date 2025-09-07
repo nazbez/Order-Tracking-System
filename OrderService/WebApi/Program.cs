@@ -1,6 +1,7 @@
 using Application;
 using Application.Abstractions.Data;
 using Infrastructure;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using OrderTrackingSystem.AspNet.Extensions;
@@ -42,4 +43,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+[UsedImplicitly]
+public partial class Program;
 

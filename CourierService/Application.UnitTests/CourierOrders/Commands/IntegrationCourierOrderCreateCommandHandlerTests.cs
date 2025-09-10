@@ -3,7 +3,7 @@ using Application.CourierOrders.Commands;
 using Domain.CourierOrders;
 using Moq;
 
-namespace Application.Tests.CourierOrders.Commands;
+namespace Application.UnitTests.CourierOrders.Commands;
 
 public sealed class IntegrationCourierOrderCreateCommandHandlerTests
 {

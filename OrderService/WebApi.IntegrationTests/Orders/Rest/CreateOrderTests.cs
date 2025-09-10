@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using WebApi.Models.Orders;
 
-namespace WebApi.IntegrationTests.Orders;
+namespace WebApi.IntegrationTests.Orders.Rest;
 
 [Collection("OrderTests")]
 public class CreateOrderTests(TestWebApplicationFactory factory)

@@ -34,7 +34,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="$(PkgOrderTrackingSystem_Grpc)\content\protos\order.proto" GrpcServices="Server" />
+        <Protobuf Include="$(PkgOrderTrackingSystem_Grpc)\content\protos\order.proto" GrpcServices="Server;Client" />
     </ItemGroup>
 
 </Project>

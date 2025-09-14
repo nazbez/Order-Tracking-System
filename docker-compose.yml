@@ -1,6 +1,23 @@
 ﻿name: order-tracking-system
 
 services:
+  api-gateway:
+    build:
+      context: ./ApiGateway/.
+      dockerfile: ApiGateway/Dockerfile
+    image: api-gateway
+    container_name: api-gateway
+    ports:
+      - "8085:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - order-service-api
+      - courier-service-api
+      - tracking-service-api
+    networks:
+      - backend
+
   order-service-api:
     build:
       context: ./OrderService/.
@@ -51,6 +68,7 @@ services:
     ports:
       - "8081:8080"
     environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:8081
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Sql=Host=postgres-db;Port=5432;Database=courier_service_db;Username=postgres;Password=postgres
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
@@ -87,6 +105,7 @@ services:
     ports:
       - "8082:8080"
     environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:8082
       - ASPNETCORE_ENVIRONMENT=Development
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
     networks:

@@ -6,7 +6,7 @@ using Domain.Orders;
 using Moq;
 using OrderTrackingSystem.Core.IntegrationEvents;
 
-namespace Application.Tests.Orders.Commands;
+namespace Application.UnitTests.Orders.Commands;
 
 public sealed class OrderCreateCommandHandlerTests
 {

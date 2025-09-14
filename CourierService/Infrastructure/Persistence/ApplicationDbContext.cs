@@ -6,10 +6,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Persistence;
 
 [ExcludeFromCodeCoverage]
-public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : DbContext(options), IApplicationDbContext
+public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public DbSet<CourierOrder> CourierOrders => Set<CourierOrder>();
+    
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+    }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

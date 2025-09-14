@@ -6,9 +6,9 @@ namespace WebApi.Models.Orders;
 public sealed class OrderResponseModel
 {
     public Guid Id { get; set; }
-    public string DeliveryAddress { get; private set; }
-    public string Status { get; private set; }
-    public Guid CustomerId { get; private set; }
+    public string DeliveryAddress { get; set; }
+    public string Status { get; set; }
+    public Guid CustomerId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public ICollection<OrderItemResponseModel> OrderItems { get; set; } = [];
 }

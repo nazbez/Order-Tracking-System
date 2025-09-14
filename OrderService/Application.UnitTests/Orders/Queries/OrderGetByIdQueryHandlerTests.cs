@@ -5,7 +5,7 @@ using ErrorOr;
 using Moq;
 using Moq.EntityFrameworkCore;
 
-namespace Application.Tests.Orders.Queries;
+namespace Application.UnitTests.Orders.Queries;
 
 public sealed class OrderGetByIdQueryHandlerTests
 {

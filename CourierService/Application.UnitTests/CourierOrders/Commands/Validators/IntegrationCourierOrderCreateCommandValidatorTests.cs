@@ -1,7 +1,7 @@
 ﻿using Application.CourierOrders.Commands;
 using Application.CourierOrders.Commands.Validators;
 
-namespace Application.Tests.CourierOrders.Commands.Validators;
+namespace Application.UnitTests.CourierOrders.Commands.Validators;
 
 public class IntegrationCourierOrderCreateCommandValidatorTests
 {

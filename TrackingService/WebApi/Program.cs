@@ -42,13 +42,13 @@ var app = builder.Build();
 app.UseWeb();
 
 app.MapGet("api/v1/orders/{orderId:guid}/status",
-    async (Guid orderId, OrderService.OrderServiceClient orderServiceClient) =>
+    async (Guid orderId, OrderService.OrderServiceClient orderServiceClient, CancellationToken cancellationToken) =>
     {
         var request = new OrderStatusRequest { OrderId = orderId.ToString() };
         
         try
         {
-            var response = await orderServiceClient.GetOrderStatusAsync(request);
+            var response = await orderServiceClient.GetOrderStatusAsync(request, cancellationToken: cancellationToken);
             return Results.Ok(response.Status);
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)

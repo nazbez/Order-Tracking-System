@@ -13,6 +13,7 @@
         <PackageReference Include="KafkaFlow.OpenTelemetry" />
         <PackageReference Include="KafkaFlow.Serializer.SchemaRegistry.ConfluentJson" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
         <PackageReference Include="Refit.HttpClientFactory" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />

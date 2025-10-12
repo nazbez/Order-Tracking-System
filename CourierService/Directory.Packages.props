@@ -8,6 +8,7 @@
   <ItemGroup>
     <!-- WebAPI -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.9.0" />
     <PackageVersion Include="Npgsql.OpenTelemetry" Version="9.0.3" />
     <PackageVersion Include="OrderTrackingSystem.AspNet" Version="2025.7.18.181930" />
     <!-- Application -->

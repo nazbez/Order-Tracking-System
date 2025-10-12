@@ -46,7 +46,8 @@ builder.Services.AddRefitClient<ICourierOrderServiceClient>()
     .ConfigureHttpClient(client =>
     {
         client.BaseAddress = new Uri(builder.Configuration["Api:BaseUrl"]!);
-    });
+    })
+    .AddStandardResilienceHandler();
 
 builder.Services.AddKafka(kafka =>
     kafka.UseMicrosoftLog()

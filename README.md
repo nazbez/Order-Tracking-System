@@ -88,3 +88,6 @@ This project is for learning and experimentation. Contributions, suggestions, an
 ## License
 
 MIT License
+
+## Intelligent Gateway Thesis Prototype
+See `src/IntelligentGateway.README.md` for implementation and run instructions.

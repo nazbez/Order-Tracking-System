@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IntelligentGateway.Application\IntelligentGateway.Application.csproj" />
+    <ProjectReference Include="..\IntelligentGateway.Infrastructure\IntelligentGateway.Infrastructure.csproj" />
+    <ProjectReference Include="..\IntelligentGateway.Domain\IntelligentGateway.Domain.csproj" />
+  </ItemGroup>
+</Project>

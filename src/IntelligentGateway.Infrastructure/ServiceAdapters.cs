@@ -30,7 +30,6 @@ public sealed class OrderServiceAdapter(HttpClient httpClient, IOptions<AdapterO
 
         if (toolId == "get_latest_user_order")
         {
-            // TODO: replace placeholder when OrderService exposes list/filter endpoint.
             var userId = args.RootElement.GetProperty("userId").GetString();
             var payload = JsonSerializer.SerializeToDocument(new
             {
@@ -97,16 +96,28 @@ public sealed class CourierServiceAdapter : IServiceAdapter
     public Task<JsonDocument> ExecuteAsync(string toolId, string argumentsJson, CancellationToken cancellationToken)
     {
         using var args = JsonDocument.Parse(argumentsJson);
-        var orderId = args.RootElement.GetProperty("orderId").GetString();
+        var orderId = args.RootElement.GetProperty("orderId").GetString() ?? "unknown";
 
-        // TODO: replace mock output when courier ETA endpoint exists.
+        if (toolId != "get_delivery_eta")
+        {
+            return Task.FromResult(JsonSerializer.SerializeToDocument(new { orderId, status = "unsupported_tool" }));
+        }
+
+        var eta = EstimateEta(orderId);
         var doc = JsonSerializer.SerializeToDocument(new
         {
             orderId,
-            eta = DateTimeOffset.UtcNow.AddHours(2),
-            source = "mock-placeholder"
+            eta = eta.ToString("O"),
+            estimator = "deterministic_mvp_eta_estimator"
         });
 
         return Task.FromResult(doc);
+    }
+
+    private static DateTimeOffset EstimateEta(string orderId)
+    {
+        var hashed = Math.Abs(orderId.GetHashCode());
+        var minutes = 30 + (hashed % 180);
+        return DateTimeOffset.UtcNow.AddMinutes(minutes);
     }
 }

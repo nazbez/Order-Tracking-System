@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using IntelligentGateway.Api;
 using IntelligentGateway.Application;
 using IntelligentGateway.Domain;
 using IntelligentGateway.Infrastructure;
@@ -13,6 +14,7 @@ builder.Services.AddHealthChecks();
 builder.Services.AddIntelligentGatewayApplication();
 builder.Services.AddIntelligentGatewayInfrastructure(builder.Configuration);
 
+builder.Services.AddSingleton<IRequestIdentityResolver, HeaderRequestIdentityResolver>();
 builder.Services.AddSingleton<GatewayMetrics>();
 
 var app = builder.Build();
@@ -60,6 +62,7 @@ app.MapGet("/api/sessions/{sessionId}", async (string sessionId, ISessionStore s
 app.MapPost("/api/query", async (
         QueryRequest request,
         HttpContext httpContext,
+        IRequestIdentityResolver identityResolver,
         IUserQueryHandler handler,
         GatewayMetrics metrics,
         CancellationToken cancellationToken) =>
@@ -67,11 +70,12 @@ app.MapPost("/api/query", async (
         var correlationId = httpContext.Items["correlationId"]?.ToString() ?? Guid.NewGuid().ToString("N");
         var sessionId = string.IsNullOrWhiteSpace(request.SessionId) ? Guid.NewGuid().ToString("N") : request.SessionId;
 
-        var query = new UserQuery(sessionId, request.UserId, request.Message);
+        var identity = identityResolver.Resolve(httpContext, request.UserId);
+        var query = new UserQuery(sessionId, identity.UserId, request.Message);
 
         var started = Stopwatch.StartNew();
-        var response = await handler.HandleAsync(query, request.Role, correlationId, cancellationToken);
-        metrics.RecordRequest(started.ElapsedMilliseconds, response.Trace.ToolCallsCount, response.Trace.ValidationFailuresCount, response.Trace.ClarificationCount);
+        var response = await handler.HandleAsync(query, identity.Role, correlationId, cancellationToken);
+        metrics.RecordRequest(started.ElapsedMilliseconds, response.Trace);
 
         return Results.Ok(response);
     })
@@ -79,7 +83,7 @@ app.MapPost("/api/query", async (
 
 app.Run();
 
-public sealed record QueryRequest(string? SessionId, string UserId, string Message, string? Role);
+public sealed record QueryRequest(string? SessionId, string? UserId, string Message);
 
 public sealed class GatewayMetrics
 {
@@ -87,22 +91,31 @@ public sealed class GatewayMetrics
     private readonly Counter<int> _toolCalls;
     private readonly Counter<int> _validationFailures;
     private readonly Counter<int> _clarifications;
+    private readonly Counter<int> _sessionReads;
+    private readonly Counter<int> _sessionUpdates;
+    private readonly Counter<int> _terminationReasons;
 
     public GatewayMetrics()
     {
-        var meter = new Meter("IntelligentGateway", "1.0.0");
+        var meter = new Meter("IntelligentGateway", "1.1.0");
         _requestDurationMs = meter.CreateHistogram<long>("gateway.request.duration.ms");
         _toolCalls = meter.CreateCounter<int>("gateway.tool.calls");
         _validationFailures = meter.CreateCounter<int>("gateway.validation.failures");
         _clarifications = meter.CreateCounter<int>("gateway.clarification.count");
+        _sessionReads = meter.CreateCounter<int>("gateway.session.read.count");
+        _sessionUpdates = meter.CreateCounter<int>("gateway.session.update.count");
+        _terminationReasons = meter.CreateCounter<int>("gateway.termination.reason.count");
     }
 
-    public void RecordRequest(long durationMs, int toolCalls, int validationFailures, int clarifications)
+    public void RecordRequest(long durationMs, ExecutionTrace trace)
     {
         _requestDurationMs.Record(durationMs);
-        _toolCalls.Add(toolCalls);
-        _validationFailures.Add(validationFailures);
-        _clarifications.Add(clarifications);
+        _toolCalls.Add(trace.ToolCallsCount);
+        _validationFailures.Add(trace.ValidationFailuresCount);
+        _clarifications.Add(trace.ClarificationCount);
+        _sessionReads.Add(trace.SessionRead ? 1 : 0);
+        _sessionUpdates.Add(trace.SessionUpdated ? 1 : 0);
+        _terminationReasons.Add(1, new KeyValuePair<string, object?>("reason", trace.TerminationReason.ToString()));
     }
 }
 

@@ -15,6 +15,7 @@ public sealed class UserQueryHandler(
     ILogger<UserQueryHandler> logger) : IUserQueryHandler
 {
     private const int MaxToolIterations = 3;
+    private const int MaxSessionToolSnapshots = 5;
 
     public async Task<FinalAnswer> HandleAsync(UserQuery query, string? role, string correlationId, CancellationToken cancellationToken)
     {
@@ -22,76 +23,77 @@ public sealed class UserQueryHandler(
         var trace = new ExecutionTrace();
         var toolCallSummaries = new List<ToolCallSummary>();
 
-        var session = await sessionStore.GetAsync(query.SessionId, cancellationToken)
-            ?? new SessionContext { SessionId = query.SessionId, UserId = query.UserId };
+        var existingSession = await sessionStore.GetAsync(query.SessionId, cancellationToken);
+        trace.SessionRead = existingSession is not null;
 
-        session.RecentUserMessages.Add(query.Message);
+        var session = existingSession ?? new SessionContext { SessionId = query.SessionId, UserId = query.UserId };
+
         var allowed = toolPolicyService.FilterAllowedTools(query.UserId, role, toolRegistry.GetAll());
 
         trace.Steps.Add(MakeStep("policy", "Filtered allowed tools", new Dictionary<string, object?>
         {
             ["allowedToolCount"] = allowed.Count,
-            ["correlationId"] = correlationId
+            ["correlationId"] = correlationId,
+            ["role"] = role ?? "user"
         }));
 
         var executed = new List<ToolCallResult>();
+        var toolFailed = false;
 
         for (var i = 0; i < MaxToolIterations; i++)
         {
+            trace.OrchestrationStepsCount++;
             var plan = await chatOrchestrator.PlanAsync(query, session, allowed, executed, cancellationToken);
+
+            if (plan.UsedSessionMemory)
+            {
+                trace.UsedSessionMemory = true;
+                trace.Steps.Add(MakeStep("memory", "Planner reused session memory", new Dictionary<string, object?>
+                {
+                    ["resolvedOrderId"] = session.ResolvedOrderId
+                }));
+            }
 
             if (plan.RequiresClarification)
             {
                 trace.ClarificationCount++;
+                trace.TerminationReason = TerminationReason.ClarificationNeeded;
                 trace.Steps.Add(MakeStep("clarification", "Clarification requested", new Dictionary<string, object?>
                 {
-                    ["question"] = plan.ClarificationQuestion
+                    ["question"] = plan.ClarificationQuestion,
+                    ["scenario"] = plan.Scenario
                 }));
 
-                await sessionStore.UpsertAsync(session, cancellationToken);
+                await PersistSessionAsync(session, trace, cancellationToken);
 
-                trace.DurationMs = started.ElapsedMilliseconds;
-                return new FinalAnswer
-                {
-                    SessionId = session.SessionId,
-                    Answer = "I need a bit more detail to continue.",
-                    RequiresClarification = true,
-                    ClarificationQuestion = plan.ClarificationQuestion,
-                    ToolCalls = toolCallSummaries,
-                    Trace = trace
-                };
+                return BuildAnswer(started.ElapsedMilliseconds, session.SessionId,
+                    "I need a bit more detail to continue.",
+                    requiresClarification: true,
+                    plan.ClarificationQuestion,
+                    toolCallSummaries,
+                    trace);
             }
 
             if (plan.ToolCall is null)
             {
                 var answer = plan.FinalAnswer ?? await chatOrchestrator.ComposeFinalAnswerAsync(query, session, executed, cancellationToken);
-                session.UpdatedAt = DateTimeOffset.UtcNow;
-                await sessionStore.UpsertAsync(session, cancellationToken);
-                trace.DurationMs = started.ElapsedMilliseconds;
-                return new FinalAnswer
-                {
-                    SessionId = session.SessionId,
-                    Answer = answer,
-                    RequiresClarification = false,
-                    ClarificationQuestion = null,
-                    ToolCalls = toolCallSummaries,
-                    Trace = trace
-                };
+                trace.TerminationReason = string.Equals(plan.Scenario, "unsupported", StringComparison.OrdinalIgnoreCase)
+                    ? TerminationReason.Unsupported
+                    : TerminationReason.Success;
+
+                await PersistSessionAsync(session, trace, cancellationToken);
+                return BuildAnswer(started.ElapsedMilliseconds, session.SessionId, answer, false, null, toolCallSummaries, trace);
             }
 
             var tool = allowed.FirstOrDefault(t => string.Equals(t.Id, plan.ToolCall.ToolId, StringComparison.OrdinalIgnoreCase));
             if (tool is null)
             {
+                trace.TerminationReason = TerminationReason.Forbidden;
                 trace.Steps.Add(MakeStep("policy", "Tool denied", new Dictionary<string, object?> { ["toolId"] = plan.ToolCall.ToolId }));
-                trace.DurationMs = started.ElapsedMilliseconds;
-                return new FinalAnswer
-                {
-                    SessionId = session.SessionId,
-                    Answer = $"Tool '{plan.ToolCall.ToolId}' is not allowed for this user.",
-                    RequiresClarification = false,
-                    Trace = trace,
-                    ToolCalls = toolCallSummaries
-                };
+
+                await PersistSessionAsync(session, trace, cancellationToken);
+                return BuildAnswer(started.ElapsedMilliseconds, session.SessionId,
+                    $"Tool '{plan.ToolCall.ToolId}' is not allowed for this user.", false, null, toolCallSummaries, trace);
             }
 
             var argsJson = plan.ToolCall.Arguments.GetRawText();
@@ -99,21 +101,20 @@ public sealed class UserQueryHandler(
             if (!validation.IsValid)
             {
                 trace.ValidationFailuresCount++;
+                trace.TerminationReason = TerminationReason.InvalidArguments;
                 trace.Steps.Add(MakeStep("validation", "Tool arguments validation failed", new Dictionary<string, object?>
                 {
                     ["toolId"] = tool.Id,
                     ["errors"] = validation.Errors
                 }));
 
-                return new FinalAnswer
-                {
-                    SessionId = session.SessionId,
-                    Answer = "I couldn't run that tool because the arguments were invalid.",
-                    RequiresClarification = true,
-                    ClarificationQuestion = $"Please correct input for '{tool.Name}': {string.Join("; ", validation.Errors)}",
-                    Trace = trace,
-                    ToolCalls = toolCallSummaries
-                };
+                await PersistSessionAsync(session, trace, cancellationToken);
+                return BuildAnswer(started.ElapsedMilliseconds, session.SessionId,
+                    "I couldn't run that tool because the arguments were invalid.",
+                    true,
+                    $"Please correct input for '{tool.Name}': {string.Join("; ", validation.Errors)}",
+                    toolCallSummaries,
+                    trace);
             }
 
             var result = await toolExecutor.ExecuteAsync(tool, argsJson, cancellationToken);
@@ -121,9 +122,10 @@ public sealed class UserQueryHandler(
             trace.ToolCallsCount++;
             toolCallSummaries.Add(new ToolCallSummary(tool.Id, result.Status));
 
-            session.RecentToolResults.Add(new ToolCallResultSnapshot(tool.Id, result.Status, result.Data?.RootElement.GetRawText()));
+            AddToolSnapshot(session, result);
             if (TryExtractOrderId(result.Data, out var orderId))
             {
+                session.ResolvedOrderId = orderId;
                 session.Entities["orderId"] = orderId;
             }
 
@@ -136,23 +138,52 @@ public sealed class UserQueryHandler(
 
             if (!result.Success)
             {
+                toolFailed = true;
                 logger.LogWarning("Tool {ToolId} failed. CorrelationId {CorrelationId}", tool.Id, correlationId);
                 break;
             }
         }
 
         var fallbackAnswer = await chatOrchestrator.ComposeFinalAnswerAsync(query, session, executed, cancellationToken);
+        trace.TerminationReason = toolFailed ? TerminationReason.DegradedFallback : TerminationReason.MaxStepsReached;
+
+        await PersistSessionAsync(session, trace, cancellationToken);
+        return BuildAnswer(started.ElapsedMilliseconds, session.SessionId, fallbackAnswer, false, null, toolCallSummaries, trace);
+    }
+
+    private static void AddToolSnapshot(SessionContext session, ToolCallResult result)
+    {
+        session.RecentToolResults.Add(new ToolCallResultSnapshot(result.ToolId, result.Status, result.Data?.RootElement.GetRawText()));
+        if (session.RecentToolResults.Count > MaxSessionToolSnapshots)
+        {
+            session.RecentToolResults.RemoveAt(0);
+        }
+    }
+
+    private async Task PersistSessionAsync(SessionContext session, ExecutionTrace trace, CancellationToken cancellationToken)
+    {
         session.UpdatedAt = DateTimeOffset.UtcNow;
         await sessionStore.UpsertAsync(session, cancellationToken);
-        trace.DurationMs = started.ElapsedMilliseconds;
+        trace.SessionUpdated = true;
+        trace.Steps.Add(MakeStep("session", "Session updated", new Dictionary<string, object?>
+        {
+            ["resolvedOrderId"] = session.ResolvedOrderId,
+            ["toolSnapshotCount"] = session.RecentToolResults.Count
+        }));
+    }
 
+    private static FinalAnswer BuildAnswer(long durationMs, string sessionId, string answer, bool requiresClarification,
+        string? clarificationQuestion, List<ToolCallSummary> toolCalls, ExecutionTrace trace)
+    {
+        trace.DurationMs = durationMs;
         return new FinalAnswer
         {
-            SessionId = session.SessionId,
-            Answer = fallbackAnswer,
-            RequiresClarification = false,
-            Trace = trace,
-            ToolCalls = toolCallSummaries
+            SessionId = sessionId,
+            Answer = answer,
+            RequiresClarification = requiresClarification,
+            ClarificationQuestion = clarificationQuestion,
+            ToolCalls = toolCalls,
+            Trace = trace
         };
     }
 

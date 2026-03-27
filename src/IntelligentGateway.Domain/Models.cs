@@ -2,6 +2,17 @@ using System.Text.Json;
 
 namespace IntelligentGateway.Domain;
 
+public enum TerminationReason
+{
+    Success,
+    ClarificationNeeded,
+    Forbidden,
+    InvalidArguments,
+    Unsupported,
+    MaxStepsReached,
+    DegradedFallback
+}
+
 public sealed record UserQuery(string SessionId, string UserId, string Message);
 
 public sealed record ToolDefinition(
@@ -17,7 +28,13 @@ public sealed record ToolDefinition(
 
 public sealed record ToolCallRequest(string ToolId, JsonElement Arguments);
 
-public sealed record ToolCallPlan(bool RequiresClarification, string? ClarificationQuestion, string? FinalAnswer, ToolCallRequest? ToolCall);
+public sealed record ToolCallPlan(
+    bool RequiresClarification,
+    string? ClarificationQuestion,
+    string? FinalAnswer,
+    ToolCallRequest? ToolCall,
+    bool UsedSessionMemory = false,
+    string Scenario = "unknown");
 
 public sealed record ToolCallResult(string ToolId, bool Success, string Status, JsonDocument? Data, string? Error, long DurationMs);
 
@@ -28,17 +45,22 @@ public sealed record ExecutionStep(string Kind, string Message, long TimestampUn
 public sealed class ExecutionTrace
 {
     public long DurationMs { get; set; }
-    public List<ExecutionStep> Steps { get; } = [];
+    public int OrchestrationStepsCount { get; set; }
     public int ToolCallsCount { get; set; }
     public int ValidationFailuresCount { get; set; }
     public int ClarificationCount { get; set; }
+    public bool SessionRead { get; set; }
+    public bool SessionUpdated { get; set; }
+    public bool UsedSessionMemory { get; set; }
+    public TerminationReason TerminationReason { get; set; } = TerminationReason.Success;
+    public List<ExecutionStep> Steps { get; } = [];
 }
 
 public sealed class SessionContext
 {
     public required string SessionId { get; init; }
     public required string UserId { get; init; }
-    public List<string> RecentUserMessages { get; init; } = [];
+    public string? ResolvedOrderId { get; set; }
     public List<ToolCallResultSnapshot> RecentToolResults { get; init; } = [];
     public Dictionary<string, string> Entities { get; init; } = new(StringComparer.OrdinalIgnoreCase);
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;

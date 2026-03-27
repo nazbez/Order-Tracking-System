@@ -8,7 +8,7 @@ public enum TerminationReason
     ClarificationNeeded,
     Forbidden,
     InvalidArguments,
-    Unsupported,
+    UnsupportedRequest,
     MaxStepsReached,
     DegradedFallback
 }

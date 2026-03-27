@@ -78,7 +78,7 @@ public sealed class UserQueryHandler(
             {
                 var answer = plan.FinalAnswer ?? await chatOrchestrator.ComposeFinalAnswerAsync(query, session, executed, cancellationToken);
                 trace.TerminationReason = string.Equals(plan.Scenario, "unsupported", StringComparison.OrdinalIgnoreCase)
-                    ? TerminationReason.Unsupported
+                    ? TerminationReason.UnsupportedRequest
                     : TerminationReason.Success;
 
                 await PersistSessionAsync(session, trace, cancellationToken);

@@ -14,7 +14,7 @@ namespace IntelligentGateway.Tests;
 public sealed class QueryIntegrationTests
 {
     [Fact]
-    public async Task SingleStep_Request_ReturnsTrackingStatus_WithSuccessTrace()
+    public async Task SingleStep_Request_ReturnsTrackingStatus_WithTraceMetadata()
     {
         await using var factory = new GatewayFactory();
         using var client = factory.CreateClient();
@@ -25,18 +25,25 @@ public sealed class QueryIntegrationTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var json = await ReadJson(response);
         Assert.Contains("123", json.GetProperty("answer").GetString());
-        Assert.Equal(1, json.GetProperty("trace").GetProperty("toolCallsCount").GetInt32());
-        Assert.Equal("Success", json.GetProperty("trace").GetProperty("terminationReason").GetString());
+
+        var trace = json.GetProperty("trace");
+        Assert.Equal(1, trace.GetProperty("toolCallsCount").GetInt32());
+        Assert.Equal(0, trace.GetProperty("clarificationCount").GetInt32());
+        Assert.Equal(0, trace.GetProperty("validationFailuresCount").GetInt32());
+        Assert.False(trace.GetProperty("sessionRead").GetBoolean());
+        Assert.True(trace.GetProperty("sessionUpdated").GetBoolean());
+        Assert.Equal("Success", trace.GetProperty("terminationReason").GetString());
+        Assert.True(trace.GetProperty("orchestrationStepsCount").GetInt32() >= 1);
     }
 
     [Fact]
-    public async Task MultiStep_Request_UsesLatestThenTracking()
+    public async Task MultiStep_Request_UsesLatestThenTracking_WithTwoToolCalls()
     {
         await using var factory = new GatewayFactory();
         using var client = factory.CreateClient();
         WithAdminContext(client);
 
-        var response = await client.PostAsJsonAsync("/api/query", new { sessionId = "s2", userId = "demo-user", message = "Find my latest order and tell me its status" });
+        var response = await client.PostAsJsonAsync("/api/query", new { sessionId = "s2", userId = "demo-user", message = "Track my latest order" });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var json = await ReadJson(response);
@@ -45,7 +52,7 @@ public sealed class QueryIntegrationTests
     }
 
     [Fact]
-    public async Task Clarification_Request_ReturnsClarificationTerminationReason()
+    public async Task Clarification_Request_ReturnsClarificationTrace()
     {
         await using var factory = new GatewayFactory();
         using var client = factory.CreateClient();
@@ -56,7 +63,11 @@ public sealed class QueryIntegrationTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var json = await ReadJson(response);
         Assert.True(json.GetProperty("requiresClarification").GetBoolean());
-        Assert.Equal("ClarificationNeeded", json.GetProperty("trace").GetProperty("terminationReason").GetString());
+
+        var trace = json.GetProperty("trace");
+        Assert.Equal("ClarificationNeeded", trace.GetProperty("terminationReason").GetString());
+        Assert.Equal(1, trace.GetProperty("clarificationCount").GetInt32());
+        Assert.Equal(0, trace.GetProperty("toolCallsCount").GetInt32());
     }
 
     [Fact]
@@ -66,7 +77,7 @@ public sealed class QueryIntegrationTests
         using var client = factory.CreateClient();
         WithUserContext(client, "regular-user");
 
-        var response = await client.PostAsJsonAsync("/api/query", new { sessionId = "s4", userId = "regular-user", message = "Find my latest order and tell me its status" });
+        var response = await client.PostAsJsonAsync("/api/query", new { sessionId = "s4", userId = "regular-user", message = "Track my latest order" });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var json = await ReadJson(response);
@@ -89,9 +100,11 @@ public sealed class QueryIntegrationTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var json = await ReadJson(response);
+
+        var trace = json.GetProperty("trace");
+        Assert.Equal("InvalidArguments", trace.GetProperty("terminationReason").GetString());
+        Assert.Equal(1, trace.GetProperty("validationFailuresCount").GetInt32());
         Assert.True(json.GetProperty("requiresClarification").GetBoolean());
-        Assert.Equal("InvalidArguments", json.GetProperty("trace").GetProperty("terminationReason").GetString());
-        Assert.Equal(1, json.GetProperty("trace").GetProperty("validationFailuresCount").GetInt32());
     }
 
     [Fact]
@@ -116,44 +129,60 @@ public sealed class QueryIntegrationTests
     }
 
     [Fact]
-    public async Task SessionMemory_FollowUp_UsesStoredOrderContext_AndTraceShowsMemoryUsage()
+    public async Task MultiTurn_SessionMemory_ShowLatest_ThenWhereIsItNow_UsesStoredOrderId()
     {
         await using var factory = new GatewayFactory();
         using var client = factory.CreateClient();
         WithAdminContext(client);
 
-        var sessionId = "s7";
+        const string sessionId = "s7";
 
         var first = await client.PostAsJsonAsync("/api/query", new
         {
             sessionId,
             userId = "demo-user",
-            message = "Find my latest order and tell me its status"
+            message = "Show my latest order"
         });
 
+        Assert.Equal(HttpStatusCode.OK, first.StatusCode);
         var firstJson = await ReadJson(first);
-        Assert.Equal("Success", firstJson.GetProperty("trace").GetProperty("terminationReason").GetString());
+        var firstTrace = firstJson.GetProperty("trace");
+        Assert.Equal("Success", firstTrace.GetProperty("terminationReason").GetString());
+        Assert.Equal(1, firstTrace.GetProperty("toolCallsCount").GetInt32());
+        Assert.False(firstTrace.GetProperty("usedSessionMemory").GetBoolean());
 
-        var storedSessionResponse = await client.GetAsync($"/api/sessions/{sessionId}");
-        Assert.Equal(HttpStatusCode.OK, storedSessionResponse.StatusCode);
-        var storedSession = await ReadJson(storedSessionResponse);
-        var resolvedOrderId = storedSession.GetProperty("resolvedOrderId").GetString();
+        var sessionResponse = await client.GetAsync($"/api/sessions/{sessionId}");
+        Assert.Equal(HttpStatusCode.OK, sessionResponse.StatusCode);
+        var sessionJson = await ReadJson(sessionResponse);
+        var resolvedOrderId = sessionJson.GetProperty("resolvedOrderId").GetString();
         Assert.False(string.IsNullOrWhiteSpace(resolvedOrderId));
 
         var second = await client.PostAsJsonAsync("/api/query", new
         {
             sessionId,
             userId = "demo-user",
-            message = "What is the delivery ETA?"
+            message = "Where is it now?"
         });
 
+        Assert.Equal(HttpStatusCode.OK, second.StatusCode);
         var secondJson = await ReadJson(second);
-        Assert.Contains("Estimated delivery time", secondJson.GetProperty("answer").GetString());
-        Assert.True(secondJson.GetProperty("trace").GetProperty("usedSessionMemory").GetBoolean());
-        Assert.Equal("Success", secondJson.GetProperty("trace").GetProperty("terminationReason").GetString());
+        var secondTrace = secondJson.GetProperty("trace");
 
-        var stepKinds = secondJson.GetProperty("trace").GetProperty("steps")
-            .EnumerateArray()
+        Assert.Equal("Success", secondTrace.GetProperty("terminationReason").GetString());
+        Assert.Equal(1, secondTrace.GetProperty("toolCallsCount").GetInt32());
+        Assert.True(secondTrace.GetProperty("sessionRead").GetBoolean());
+        Assert.True(secondTrace.GetProperty("sessionUpdated").GetBoolean());
+        Assert.True(secondTrace.GetProperty("usedSessionMemory").GetBoolean());
+        Assert.True(secondTrace.GetProperty("orchestrationStepsCount").GetInt32() >= 1);
+
+        var executedTools = secondJson.GetProperty("toolCalls").EnumerateArray()
+            .Select(t => t.GetProperty("toolId").GetString())
+            .ToArray();
+
+        Assert.Single(executedTools);
+        Assert.Equal("get_tracking_status", executedTools[0]);
+
+        var stepKinds = secondTrace.GetProperty("steps").EnumerateArray()
             .Select(s => s.GetProperty("kind").GetString())
             .ToArray();
 
@@ -162,7 +191,7 @@ public sealed class QueryIntegrationTests
     }
 
     [Fact]
-    public async Task UnsupportedRequest_ReturnsUnsupportedTermination()
+    public async Task UnsupportedRequest_ReturnsUnsupportedRequestTermination()
     {
         await using var factory = new GatewayFactory();
         using var client = factory.CreateClient();
@@ -171,7 +200,7 @@ public sealed class QueryIntegrationTests
         var response = await client.PostAsJsonAsync("/api/query", new { sessionId = "s8", userId = "demo-user", message = "Tell me a joke about logistics" });
 
         var json = await ReadJson(response);
-        Assert.Equal("Unsupported", json.GetProperty("trace").GetProperty("terminationReason").GetString());
+        Assert.Equal("UnsupportedRequest", json.GetProperty("trace").GetProperty("terminationReason").GetString());
         Assert.Contains("Unsupported request", json.GetProperty("answer").GetString());
     }
 

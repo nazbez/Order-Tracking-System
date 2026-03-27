@@ -40,8 +40,8 @@ Projects:
 - **Clarification when order info missing**: “Where is my order?”
 - **Delivery ETA by order id**: “What is ETA for order 123?”
 - **Follow-up in same session using memory**:
-  - Turn 1 resolves order id,
-  - Turn 2 asks “What is the delivery ETA?” and reuses session context.
+  - Turn 1: “Show my latest order” (resolves/stores order context),
+  - Turn 2: “Where is it now?” (reuses stored order id without re-resolving latest order).
 - **Unsupported/ambiguous requests** return explicit unsupported response.
 
 ## Session memory behavior
@@ -67,7 +67,7 @@ Each response trace includes:
 - validation failure count,
 - session read/update flags,
 - whether session memory was used,
-- termination reason (`Success`, `ClarificationNeeded`, `Forbidden`, `InvalidArguments`, `Unsupported`, `MaxStepsReached`, `DegradedFallback`),
+- termination reason (`Success`, `ClarificationNeeded`, `Forbidden`, `InvalidArguments`, `UnsupportedRequest`, `MaxStepsReached`, `DegradedFallback`),
 - per-step metadata log.
 
 Metrics include counters/histograms for request duration, tool calls, validation failures, clarifications, session reads/updates, and termination reason counts.

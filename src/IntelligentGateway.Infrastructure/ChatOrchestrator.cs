@@ -22,7 +22,17 @@ public sealed class RuleBasedChatOrchestrator(IChatClient chatClient) : IChatOrc
         {
             if (requested.AsksLatest)
             {
-                return PlanTool("get_latest_user_order", new { userId = query.UserId }, scenario: requested.AsksEta ? "latest_then_eta" : "latest_then_status");
+                if (requested.AsksEta)
+                {
+                    return PlanTool("get_latest_user_order", new { userId = query.UserId }, scenario: "latest_then_eta");
+                }
+
+                if (requested.AsksStatus)
+                {
+                    return PlanTool("get_latest_user_order", new { userId = query.UserId }, scenario: "latest_then_status");
+                }
+
+                return PlanTool("get_latest_user_order", new { userId = query.UserId }, scenario: "latest_only");
             }
 
             if (requested.AsksEta)
@@ -71,7 +81,12 @@ public sealed class RuleBasedChatOrchestrator(IChatClient chatClient) : IChatOrc
                 return PlanTool("get_delivery_eta", new { orderId = latestOrderId }, scenario: "latest_resolved_then_eta");
             }
 
-            return PlanTool("get_tracking_status", new { orderId = latestOrderId }, scenario: "latest_resolved_then_status");
+            if (requested.AsksStatus)
+            {
+                return PlanTool("get_tracking_status", new { orderId = latestOrderId }, scenario: "latest_resolved_then_status");
+            }
+
+            return Done();
         }
 
         return Done();
@@ -143,7 +158,7 @@ public sealed class RuleBasedChatOrchestrator(IChatClient chatClient) : IChatOrc
     {
         var asksLatest = ContainsAny(message, "latest", "most recent", "recent");
         var asksEta = ContainsAny(message, "eta", "arrive", "arrival", "delivery time");
-        var asksStatus = ContainsAny(message, "status", "where is", "track", "tracking") || (!asksEta && ContainsAny(message, "order"));
+        var asksStatus = ContainsAny(message, "status", "where is", "track", "tracking", "where is it now");
 
         var orderId = ExtractOrderId(message);
         return new ParsedIntent(asksStatus, asksLatest, asksEta, orderId);
